@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>League History · Dynasty Rater</title>
-  <link rel="stylesheet" href="style.css?v=20260915">
-  <script type="module" src="history-app.js?v=20260915"></script>
+  <link rel="stylesheet" href="style.css?v=20260915b">
+  <script type="module" src="history-app.js?v=20260915b"></script>
 </head>
 <body>
   <div class="page">
@@ -30,6 +30,20 @@
           <p class="sub">Best and worst go by weekly strength, which your schedule can’t help or hurt. Luck is wins beyond what your scores earned, playoffs included.</p>
         </div>
         <div id="awards" class="tiles awards"></div>
+      </section>
+
+      <section id="deals-section" class="card span-2" aria-labelledby="deals-title" hidden>
+        <div class="card-head">
+          <h2 id="deals-title">Draft room and trade table</h2>
+          <p id="deals-sub" class="sub">Rookie drafts and trades, graded on points above a replacement-level player.</p>
+        </div>
+        <div id="deal-awards" class="tiles awards deal-awards"></div>
+        <div class="split">
+          <div class="table-wrap"><table id="steals" class="data"></table></div>
+          <div class="table-wrap"><table id="busts" class="data"></table></div>
+        </div>
+        <div class="table-wrap stacked"><table id="lopsided" class="data"></table></div>
+        <div class="table-wrap stacked"><table id="deal-managers" class="data"></table></div>
       </section>
 
       <section class="card" aria-labelledby="luck-title">

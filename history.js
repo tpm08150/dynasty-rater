@@ -5,6 +5,16 @@
 // Games decided by less than this many points count as close.
 export const CLOSE_GAME_POINTS = 5;
 
+// Seasons from before the league moved to Sleeper, shipped as data/yahoo-seasons.json.
+// They're only added when the Sleeper history reaches the season they precede, so
+// another league's history never picks them up.
+export function withEarlierSeasons(seasons, earlier) {
+  if (!earlier?.seasons?.length) return seasons;
+  if (!seasons.some(s => s.league.league_id === earlier.precedesLeagueId)) return seasons;
+  const marked = earlier.seasons.map(s => ({ ...s, league: { ...s.league, source: earlier.source } }));
+  return [...marked, ...seasons];
+}
+
 // Share of the other teams a score beat that week; ties count half.
 export function allPlayShare(points, rosterId) {
   const mine = points.get(rosterId);
@@ -108,6 +118,7 @@ export function summarizeSeason({ league, rosters, matchups, winnersBracket = []
 
   return {
     season: Number(league.season),
+    source: league.source ?? null,
     teams: rosters.length,
     stats,
     playoffTeams,
@@ -175,8 +186,8 @@ export function buildHistory(seasons, currentUsers = []) {
     leagueName: finished.at(-1)?.league.name ?? '',
     firstSeason: summaries[0]?.season ?? null,
     lastSeason: summaries.at(-1)?.season ?? null,
-    seasons: summaries.map(({ season, champion, runnerUp, topSeed, lastPlace, savedRecordsDiffer }) =>
-      ({ season, champion, runnerUp, topSeed, lastPlace, savedRecordsDiffer })),
+    seasons: summaries.map(({ season, source, champion, runnerUp, topSeed, lastPlace, savedRecordsDiffer }) =>
+      ({ season, source, champion, runnerUp, topSeed, lastPlace, savedRecordsDiffer })),
     managers,
     best: leader('strength', 1),
     worst: leader('strength', -1),

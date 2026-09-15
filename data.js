@@ -76,6 +76,17 @@ async function loadPlayers() {
   }
 }
 
+// Files shipped with the site under data/. A missing or unreadable file means that
+// part of the page is skipped, not that the page fails.
+export async function loadSiteData(path) {
+  try {
+    const res = await fetch(path);
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 const SEASON_KEY = id => `dynasty-rater:season:v1:${id}`;
 
 // Walks back through each season's previous_league_id. A finished season never

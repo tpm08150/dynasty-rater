@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { allPlayShare, summarizeSeason, buildHistory } from '../history.js';
+import { allPlayShare, summarizeSeason, buildHistory, withEarlierSeasons } from '../history.js';
 
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} ≠ ${expected}`);
 
@@ -119,4 +119,18 @@ test('no finished seasons means no managers or superlatives', () => {
   assert.deepEqual(h.managers, []);
   assert.equal(h.best.manager, null);
   assert.equal(h.firstSeason, null);
+});
+
+test('earlier seasons are prepended and labeled only for the league they precede', () => {
+  const sleeper = [{ ...fakeSeason(2019), league: { ...fakeSeason(2019).league, league_id: 'first-sleeper' } }];
+  const earlier = { source: 'Yahoo records', precedesLeagueId: 'first-sleeper', seasons: [fakeSeason(2018)] };
+
+  const merged = withEarlierSeasons(sleeper, earlier);
+  assert.deepEqual(merged.map(s => s.league.season), ['2018', '2019']);
+  assert.equal(merged[0].league.source, 'Yahoo records');
+  assert.equal(merged[1].league.source, undefined);
+  assert.deepEqual(buildHistory(merged).seasons.map(s => s.source), ['Yahoo records', null]);
+
+  assert.equal(withEarlierSeasons(sleeper, { ...earlier, precedesLeagueId: 'other-league' }), sleeper);
+  assert.equal(withEarlierSeasons(sleeper, null), sleeper);
 });
