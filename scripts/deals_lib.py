@@ -1,5 +1,6 @@
 """Grading logic for the draft and trade superlatives. No network access, so
 test_deals_lib.py can check it against small made-up seasons."""
+import datetime
 import math
 from collections import defaultdict
 
@@ -133,6 +134,19 @@ def dropped_by(drops, pickup):
         return None
     roster = max(earlier)[2]
     return None if roster == pickup['roster'] else roster
+
+
+def nfl_kickoff_ms(season, exceptions=None):
+    """NFL opening night in epoch ms (UTC). Usually the Thursday after Labor Day at
+    8:20 pm Eastern, which is 00:20 UTC Friday; exceptions maps season to an ISO
+    UTC time for years the league did something else."""
+    if exceptions and season in exceptions:
+        moment = datetime.datetime.fromisoformat(exceptions[season]).replace(tzinfo=datetime.timezone.utc)
+    else:
+        labor_day = next(datetime.date(season, 9, d) for d in range(1, 8) if datetime.date(season, 9, d).weekday() == 0)
+        friday = labor_day + datetime.timedelta(days=4)
+        moment = datetime.datetime.combine(friday, datetime.time(0, 20), datetime.timezone.utc)
+    return moment.timestamp() * 1000
 
 
 def trade_start_week(created_ms, kickoff_ms, leg):

@@ -134,3 +134,25 @@ test('earlier seasons are prepended and labeled only for the league they precede
   assert.equal(withEarlierSeasons(sleeper, { ...earlier, precedesLeagueId: 'other-league' }), sleeper);
   assert.equal(withEarlierSeasons(sleeper, null), sleeper);
 });
+
+test('lineup setting uses saved potential points and skips seasons without them', () => {
+  const withBench = fakeSeason(2021);
+  const saved = { u1: [280, 350], u2: [300, 320], u3: [275, 300], u4: [216, 300] }; // [points, potential]
+  withBench.rosters = withBench.rosters.map(r => ({
+    ...r,
+    settings: { ...r.settings, fpts: saved[r.owner_id][0], fpts_decimal: 50, ppts: saved[r.owner_id][1], ppts_decimal: 0 },
+  }));
+  const h = buildHistory([fakeSeason(2020), withBench]);
+  const m = id => h.managers.find(x => x.ownerId === id);
+
+  near(m('u1').lineupEfficiency, 280.5 / 350);
+  near(m('u1').benchPerWeek, (350 - 280.5) / 3); // only the 2021 weeks count
+  // u2 300.5/320, u3 275.5/300, u1 280.5/350, u4 216.5/300
+  assert.deepEqual([h.bestLineup.manager.ownerId, h.bestLineup.next.ownerId], ['u2', 'u3']);
+  assert.deepEqual([h.worstLineup.manager.ownerId, h.worstLineup.next.ownerId], ['u4', 'u1']);
+  assert.deepEqual(h.lineupSeasons, [2021]);
+
+  const noBenches = buildHistory([fakeSeason(2020)]);
+  assert.equal(noBenches.bestLineup.manager, null);
+  assert.equal(noBenches.managers[0].lineupEfficiency, null);
+});

@@ -386,9 +386,9 @@ h2 { font-size: 16px; margin: 0; }
 
 #finishes td.cell { white-space: nowrap; }
 
-/* Six draft and trade awards: three across when wide. */
-.deal-awards { margin-bottom: 20px; }
-@media (min-width: 1000px) { .deal-awards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Six-award grids: three across when wide. */
+#deal-awards { margin-bottom: 20px; }
+@media (min-width: 1000px) { .three-up { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .table-wrap.stacked + .table-wrap.stacked { margin-top: 20px; }
 
 @media (max-width: 640px) {

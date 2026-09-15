@@ -40,6 +40,7 @@ const blankStats = () => ({
   wins: 0, losses: 0, ties: 0, games: 0, pointsFor: 0, pointsAgainst: 0,
   weeks: 0, expectedWins: 0, closeWins: 0, closeLosses: 0, topScoreWeeks: 0, lowScoreWeeks: 0,
   playoffWins: 0, playoffLosses: 0, playoffExpectedWins: 0,
+  lineupPoints: 0, potentialPoints: 0, lineupWeeks: 0,
 });
 
 // Wins beyond what the scores earned, counting playoff games too.
@@ -116,6 +117,17 @@ export function summarizeSeason({ league, rosters, matchups, winnersBracket = []
       && (saved.wins !== s.wins || (saved.losses ?? 0) !== s.losses || (saved.ties ?? 0) !== s.ties);
   });
 
+  // Sleeper saves each team's potential points: what its best possible lineup
+  // would have scored. The Yahoo records have no benches, so those seasons skip it.
+  for (const r of rosters) {
+    const saved = r.settings ?? {};
+    if (saved.ppts == null) continue;
+    const s = stats.get(r.owner_id);
+    s.lineupPoints = (saved.fpts ?? 0) + (saved.fpts_decimal ?? 0) / 100;
+    s.potentialPoints = saved.ppts + (saved.ppts_decimal ?? 0) / 100;
+    s.lineupWeeks = s.weeks;
+  }
+
   return {
     season: Number(league.season),
     source: league.source ?? null,
@@ -171,16 +183,19 @@ export function buildHistory(seasons, currentUsers = []) {
       winPct: c.games ? (c.wins + c.ties / 2) / c.games : 0,
       strength: c.weeks ? c.expectedWins / c.weeks : 0,
       pointsPerWeek: c.games ? c.pointsFor / c.games : 0,
+      lineupEfficiency: c.potentialPoints ? c.lineupPoints / c.potentialPoints : null,
+      benchPerWeek: c.lineupWeeks ? (c.potentialPoints - c.lineupPoints) / c.lineupWeeks : null,
       regularLuck,
       playoffLuck,
       luck: regularLuck + playoffLuck,
     };
   }).sort((a, b) => b.strength - a.strength);
 
-  const leader = (key, direction) => {
-    const sorted = [...managers].sort((a, b) => direction * (b[key] - a[key]));
+  const leader = (key, direction, list = managers) => {
+    const sorted = [...list].sort((a, b) => direction * (b[key] - a[key]));
     return { manager: sorted[0] ?? null, next: sorted[1] ?? null };
   };
+  const lineupSetters = managers.filter(m => m.lineupEfficiency != null);
 
   return {
     leagueName: finished.at(-1)?.league.name ?? '',
@@ -193,5 +208,8 @@ export function buildHistory(seasons, currentUsers = []) {
     worst: leader('strength', -1),
     luckiest: leader('luck', 1),
     unluckiest: leader('luck', -1),
+    bestLineup: leader('lineupEfficiency', 1, lineupSetters),
+    worstLineup: leader('lineupEfficiency', -1, lineupSetters),
+    lineupSeasons: summaries.filter(s => [...s.stats.values()].some(x => x.potentialPoints > 0)).map(s => s.season),
   };
 }

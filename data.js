@@ -87,7 +87,8 @@ export async function loadSiteData(path) {
   }
 }
 
-const SEASON_KEY = id => `dynasty-rater:season:v1:${id}`;
+// v2 added points scored and potential points to saved rosters.
+const SEASON_KEY = id => `dynasty-rater:season:v2:${id}`;
 
 // Walks back through each season's previous_league_id. A finished season never
 // changes, so it's fetched once, trimmed to what history needs, and kept.
@@ -139,7 +140,15 @@ async function loadFinishedSeason(league) {
     rosters: rosters.map(r => ({
       roster_id: r.roster_id,
       owner_id: r.owner_id,
-      settings: { wins: r.settings?.wins, losses: r.settings?.losses, ties: r.settings?.ties },
+      settings: {
+        wins: r.settings?.wins,
+        losses: r.settings?.losses,
+        ties: r.settings?.ties,
+        fpts: r.settings?.fpts,
+        fpts_decimal: r.settings?.fpts_decimal,
+        ppts: r.settings?.ppts,
+        ppts_decimal: r.settings?.ppts_decimal,
+      },
     })),
     winnersBracket: winnersBracket ?? [],
     matchups: Object.fromEntries(weeks.map((games, i) => [i + 1,

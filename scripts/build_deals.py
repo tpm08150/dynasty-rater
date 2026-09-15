@@ -24,11 +24,9 @@ LEAGUE_ID = '1312979994133139456'
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = Path(__file__).resolve().parent / '.cache'
 POSITIONS = ('QB', 'RB', 'WR', 'TE', 'K', 'DEF')
-# NFL opening night (UTC). A trade before kickoff counts that whole season.
-KICKOFF = {
-    2019: '2019-09-06T00:20', 2020: '2020-09-11T00:20', 2021: '2021-09-10T00:20', 2022: '2022-09-09T00:20',
-    2023: '2023-09-08T00:20', 2024: '2024-09-06T00:20', 2025: '2025-09-05T00:20', 2026: '2026-09-10T00:20',
-}
+# NFL openers (UTC) that don't follow the Thursday-after-Labor-Day rule. A trade
+# made before kickoff counts that whole season.
+KICKOFF_EXCEPTIONS = {2026: '2026-09-10T00:20'}
 
 
 def get(path, cache_name=None):
@@ -49,12 +47,6 @@ def get(path, cache_name=None):
         file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(json.dumps(data))
     return data
-
-
-def kickoff_ms(season):
-    if season not in KICKOFF:
-        sys.exit(f'Add the {season} NFL kickoff date to KICKOFF in {Path(__file__).name}.')
-    return datetime.datetime.fromisoformat(KICKOFF[season]).replace(tzinfo=datetime.timezone.utc).timestamp() * 1000
 
 
 def load_season(league):
@@ -191,7 +183,7 @@ def main():
         for t in info['transactions']:
             if t['status'] != 'complete' or t['type'] != 'trade':
                 continue
-            start = lib.trade_start_week(t['created'], kickoff_ms(season), t['leg'])
+            start = lib.trade_start_week(t['created'], lib.nfl_kickoff_ms(season, KICKOFF_EXCEPTIONS), t['leg'])
 
             def player_value(pid, season=season, start=start):
                 return span_value(pid, season, start, lib.TRADE_SEASONS)
@@ -288,6 +280,13 @@ def main():
     }
     target = ROOT / 'data' / 'deals.json'
     target.parent.mkdir(exist_ok=True)
+    # Leave the file alone when only the build date would change, so the weekly
+    # automated run doesn't commit a new copy every time.
+    if target.exists():
+        without_date = lambda d: {k: v for k, v in d.items() if k != 'generated'}
+        if without_date(json.loads(target.read_text())) == without_date(json.loads(json.dumps(out))):
+            print(f'{target.relative_to(ROOT)} unchanged')
+            return
     target.write_text(json.dumps(out, separators=(',', ':')))
     print(f"waiver wire: {len(pickups)} pickups started, {sum(1 for p in pickups if p['droppedBy'])} after another team's drop")
     for user, m in sorted(managers.items(), key=lambda kv: -(kv[1]['waivers']['value'] - kv[1]['waivers']['dropCost'])):

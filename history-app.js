@@ -9,6 +9,7 @@ const DATA_VERSION = '20260915c';
 const state = { history: null, deals: null };
 
 const pct = n => `${Math.round(n * 100)}%`;
+const pct1 = n => `${(n * 100).toFixed(1)}%`;
 const signed = n => `${n < 0 ? '−' : '+'}${Math.abs(n).toFixed(1)}`;
 const record = s => `${s.wins}-${s.losses}${s.ties ? `-${s.ties}` : ''}`;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -76,15 +77,21 @@ function thead(columns) {
 // ---------- Superlatives ----------
 
 function renderAwards() {
-  const { best, worst, luckiest, unluckiest } = state.history;
+  const { best, worst, luckiest, unluckiest, bestLineup, worstLineup } = state.history;
   const strength = m => `Outscored ${pct(m.strength)} of the league in a typical week`;
   const luck = m => `${Math.abs(m.luck).toFixed(1)} ${m.luck >= 0 ? 'more' : 'fewer'} wins than their scores earned`;
   const resume = m => `${record(m)} · ${plural(m.titles, 'title')} · ${plural(m.playoffTrips, 'playoff trip')}`;
+  const lineup = m => `Started ${pct1(m.lineupEfficiency)} of the points their best possible lineups would have scored`;
+  const bench = m => `${m.benchPerWeek.toFixed(1)} points a week left on the bench`;
   $('#awards').replaceChildren(
     award('Best manager', best, strength, resume, m => pct(m.strength)),
     award('Worst manager', worst, strength, resume, m => pct(m.strength)),
     award('Luckiest', luckiest, luck, resume, m => signed(m.luck)),
     award('Unluckiest', unluckiest, luck, resume, m => signed(m.luck)),
+    ...(bestLineup.manager ? [
+      award('Best lineup setter', bestLineup, lineup, bench, m => pct1(m.lineupEfficiency)),
+      award('Worst lineup setter', worstLineup, lineup, bench, m => pct1(m.lineupEfficiency)),
+    ] : []),
   );
 }
 
@@ -355,6 +362,7 @@ function renderCareers() {
     el('td', { class: 'num hide-narrow' }, pct(m.winPct)),
     el('td', { class: 'num' }, pct(m.strength)),
     el('td', { class: 'num hide-narrow' }, m.pointsPerWeek.toFixed(1)),
+    el('td', { class: 'num hide-narrow' }, m.lineupEfficiency == null ? '—' : pct1(m.lineupEfficiency)),
     el('td', { class: 'num' }, signed(m.luck)),
     el('td', { class: 'num' }, String(m.titles)),
     el('td', { class: 'num hide-narrow' }, String(m.finals)),
@@ -363,7 +371,7 @@ function renderCareers() {
   $('#careers').replaceChildren(
     thead([
       ['#', 'num hide-narrow'], 'Manager', ['Record', 'num'], ['Win %', 'num hide-narrow'],
-      ['Strength', 'num'], ['Pts / week', 'num hide-narrow'], ['Luck', 'num'], ['Titles', 'num'],
+      ['Strength', 'num'], ['Pts / week', 'num hide-narrow'], ['Lineup %', 'num hide-narrow'], ['Luck', 'num'], ['Titles', 'num'],
       ['Finals', 'num hide-narrow'], ['Playoffs', 'num hide-narrow'], ['Close games', 'num hide-narrow'],
     ]),
     el('tbody', {}, rows),
@@ -418,6 +426,9 @@ function renderHow() {
       item('Luck: ', 'actual wins minus the wins your scores earned (your weekly strength added up), over regular-season games plus playoff elimination games and the final. Placement games like 3rd place don’t count.'),
       item('Finish: ', 'regular-season standings by wins, then total points.'),
       item('Close games: ', `decided by less than ${CLOSE_GAME_POINTS} points.`),
+      state.history.lineupSeasons.length
+        ? item('Lineup setting: ', `regular-season points a team scored divided by Sleeper’s potential points, the score of the best lineup it could have set from its roster each week, over ${state.history.lineupSeasons[0]}–${state.history.lineupSeasons.at(-1)} (the Yahoo records don’t include benches). It’s judged with hindsight, so nobody gets close to 100%.`)
+        : null,
       seasons.some(s => s.source)
         ? item('Coverage: ', `${firstSeason} onward. The Yahoo years come from the commissioner’s records of each week’s scores and playoff games; in those playoff weeks, weekly strength compares only the teams whose games were recorded. Sleeper seasons show up here once they finish.`)
         : item('Coverage: ', `${firstSeason} onward, every season on Sleeper. The league’s first years were on Yahoo and aren’t included. New seasons show up here once they finish.`),

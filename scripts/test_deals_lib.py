@@ -41,6 +41,13 @@ class DraftCurveTest(unittest.TestCase):
 
 
 class TradeTest(unittest.TestCase):
+    def test_kickoff_rule_matches_known_openers_and_takes_exceptions(self):
+        known = {2019: '2019-09-06T00:20', 2020: '2020-09-11T00:20', 2021: '2021-09-10T00:20', 2022: '2022-09-09T00:20',
+                 2023: '2023-09-08T00:20', 2024: '2024-09-06T00:20', 2025: '2025-09-05T00:20'}
+        for season, iso in known.items():
+            self.assertEqual(lib.nfl_kickoff_ms(season), lib.nfl_kickoff_ms(season, {season: iso}), season)
+        self.assertNotEqual(lib.nfl_kickoff_ms(2026), lib.nfl_kickoff_ms(2026, {2026: '2026-09-10T00:20'}))
+
     def test_start_week(self):
         self.assertEqual(lib.trade_start_week(created_ms=100, kickoff_ms=200, leg=1), 1)
         self.assertEqual(lib.trade_start_week(created_ms=300, kickoff_ms=200, leg=6), 7)
