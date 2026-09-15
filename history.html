@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>League History · Dynasty Rater</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="history-app.js"></script>
+</head>
+<body>
+  <div class="page">
+    <nav class="site-nav" aria-label="Pages">
+      <a href="./">Ratings</a>
+      <a href="history.html" aria-current="page">History</a>
+    </nav>
+    <header class="page-head">
+      <div>
+        <h1>League history</h1>
+        <p id="history-meta" class="sub">Loading every season…</p>
+      </div>
+    </header>
+
+    <p id="coverage" class="coverage">Covers the seasons the league has played on Sleeper. The league’s first years were on Yahoo and aren’t included.</p>
+    <p id="status" class="status" role="status" hidden></p>
+
+    <main id="app" class="grid" hidden>
+      <section class="card span-2" aria-labelledby="awards-title">
+        <div class="card-head">
+          <h2 id="awards-title">Superlatives</h2>
+          <p class="sub">Best and worst go by weekly strength, which your schedule can’t help or hurt. Luck is wins beyond what your scores earned, playoffs included.</p>
+        </div>
+        <div id="awards" class="tiles awards"></div>
+      </section>
+
+      <section class="card" aria-labelledby="luck-title">
+        <div class="card-head">
+          <h2 id="luck-title">Luck</h2>
+          <p class="sub">Wins above or below what each manager’s scores earned, all seasons and playoff games.</p>
+          <div class="legend">
+            <span><span class="swatch up" aria-hidden="true"></span>More wins than scores earned</span>
+            <span><span class="swatch down" aria-hidden="true"></span>Fewer</span>
+          </div>
+        </div>
+        <div id="luck"></div>
+      </section>
+
+      <section class="card" aria-labelledby="champs-title">
+        <div class="card-head">
+          <h2 id="champs-title">Champions</h2>
+          <p class="sub">Best and worst record are regular-season standings.</p>
+        </div>
+        <div class="table-wrap"><table id="champions" class="data"></table></div>
+      </section>
+
+      <section class="card span-2" aria-labelledby="careers-title">
+        <div class="card-head">
+          <h2 id="careers-title">Career stats</h2>
+          <p class="sub">Regular season unless noted, ranked by weekly strength.</p>
+        </div>
+        <div class="table-wrap"><table id="careers" class="data"></table></div>
+      </section>
+
+      <section class="card span-2" aria-labelledby="finish-title">
+        <div class="card-head">
+          <h2 id="finish-title">Finishes by season</h2>
+          <p id="finish-sub" class="sub">Regular-season finish each year.</p>
+        </div>
+        <div class="table-wrap"><table id="finishes" class="heat"></table></div>
+      </section>
+
+      <details id="how" class="card span-2 how"></details>
+    </main>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+</body>
+</html>

@@ -64,16 +64,76 @@ export function fantasyCalcUrl(league) {
 // daily. It's only needed for names FantasyCalc lacks (K, DEF, deep bench), so
 // keep a trimmed copy for a day and carry on without it if it can't load.
 async function loadPlayers() {
-  const cached = readPlayerCache();
+  const cached = readStored(PLAYERS_KEY);
   if (cached && Date.now() - cached.fetchedAt < DAY_MS) return { players: cached.players };
   try {
     const players = trimPlayers(await getJSON(`${SLEEPER}/players/nfl`));
-    writePlayerCache({ fetchedAt: Date.now(), players });
+    writeStored(PLAYERS_KEY, { fetchedAt: Date.now(), players });
     return { players };
   } catch (err) {
     if (cached) return { players: cached.players };
     return { players: {}, playersError: `Couldn't load Sleeper's player list (${err.message}), so some kickers, defenses and deep-bench players show as IDs.` };
   }
+}
+
+const SEASON_KEY = id => `dynasty-rater:season:v1:${id}`;
+
+// Walks back through each season's previous_league_id. A finished season never
+// changes, so it's fetched once, trimmed to what history needs, and kept.
+export async function loadLeagueHistory(leagueId) {
+  const seasons = [];
+  let currentUsers = null;
+  let id = leagueId;
+  while (id && id !== '0') {
+    let season = readStored(SEASON_KEY(id));
+    if (!season) {
+      const league = await getJSON(`${SLEEPER}/league/${id}`);
+      if (!league) throw new Error(`Sleeper has no league with ID ${id}`);
+      if (league.status !== 'complete') {
+        currentUsers ??= await getJSON(`${SLEEPER}/league/${id}/users`);
+        id = league.previous_league_id;
+        continue;
+      }
+      season = await loadFinishedSeason(league);
+      writeStored(SEASON_KEY(id), season);
+    }
+    currentUsers ??= season.users;
+    seasons.push(season);
+    id = season.league.previous_league_id;
+  }
+  return { seasons, currentUsers: currentUsers ?? [] };
+}
+
+async function loadFinishedSeason(league) {
+  const id = league.league_id;
+  const [users, rosters, winnersBracket] = await Promise.all([
+    getJSON(`${SLEEPER}/league/${id}/users`),
+    getJSON(`${SLEEPER}/league/${id}/rosters`),
+    getJSON(`${SLEEPER}/league/${id}/winners_bracket`),
+  ]);
+  const start = league.settings.playoff_week_start;
+  const lastWeek = start - 1 + Math.max(0, ...(winnersBracket ?? []).map(g => g.r));
+  const weeks = await Promise.all(Array.from({ length: lastWeek }, (_, i) =>
+    getJSON(`${SLEEPER}/league/${id}/matchups/${i + 1}`)));
+  return {
+    league: {
+      league_id: id,
+      name: league.name,
+      season: league.season,
+      status: league.status,
+      previous_league_id: league.previous_league_id,
+      settings: { playoff_week_start: start, playoff_round_type: league.settings.playoff_round_type ?? 0 },
+    },
+    users: users.map(u => ({ user_id: u.user_id, display_name: u.display_name, metadata: { team_name: u.metadata?.team_name ?? null } })),
+    rosters: rosters.map(r => ({
+      roster_id: r.roster_id,
+      owner_id: r.owner_id,
+      settings: { wins: r.settings?.wins, losses: r.settings?.losses, ties: r.settings?.ties },
+    })),
+    winnersBracket: winnersBracket ?? [],
+    matchups: Object.fromEntries(weeks.map((games, i) => [i + 1,
+      (games ?? []).map(m => ({ roster_id: m.roster_id, matchup_id: m.matchup_id, points: m.points }))])),
+  };
 }
 
 export function trimPlayers(raw) {
@@ -86,18 +146,18 @@ export function trimPlayers(raw) {
   return players;
 }
 
-function readPlayerCache() {
+function readStored(key) {
   try {
-    return JSON.parse(localStorage.getItem(PLAYERS_KEY));
+    return JSON.parse(localStorage.getItem(key));
   } catch {
     return null;
   }
 }
 
-function writePlayerCache(entry) {
+function writeStored(key, value) {
   try {
-    localStorage.setItem(PLAYERS_KEY, JSON.stringify(entry));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Private windows and full storage throw; the list just reloads next visit.
+    // Private windows and full storage throw; the data just reloads next visit.
   }
 }

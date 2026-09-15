@@ -12,6 +12,8 @@
   --accent-track: #cde2fb;
   --row-selected: rgba(42, 120, 214, 0.08);
   --critical: #d03b3b;
+  --pos: #2a78d6;
+  --neg: #e34948;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +30,8 @@
     --accent: #3987e5;
     --accent-track: #184f95;
     --row-selected: rgba(57, 135, 229, 0.16);
+    --pos: #3987e5;
+    --neg: #e66767;
   }
 }
 
@@ -303,3 +307,72 @@ h2 { font-size: 16px; margin: 0; }
 .tt-row { display: flex; gap: 8px; align-items: baseline; }
 .tt-row strong { font-variant-numeric: tabular-nums; color: var(--ink); }
 .tt-row span { color: var(--ink-2); }
+
+/* Page links */
+.site-nav { display: flex; gap: 4px; margin-bottom: 12px; }
+.site-nav a {
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.site-nav a:hover { color: var(--ink); border-color: var(--border); }
+.site-nav a[aria-current="page"] { color: var(--ink); font-weight: 600; background: var(--row-selected); }
+
+/* History page */
+.coverage {
+  margin: -4px 0 16px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  color: var(--ink-2);
+}
+
+/* Four awards: 2×2 by default, one row when wide, one column on phones. */
+.awards { margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 1000px) { .awards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .awards { grid-template-columns: minmax(0, 1fr); } }
+.award-name { font-size: 18px; font-weight: 600; line-height: 1.25; margin-top: 2px; }
+.award-user { color: var(--ink-2); font-size: 12px; }
+.award-line { margin: 8px 0 0; }
+.award-detail { margin: 4px 0 0; color: var(--ink-2); font-size: 12px; }
+.award-next { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--grid); color: var(--ink-2); font-size: 12px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; color: var(--ink-2); font-size: 12px; }
+.swatch { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; vertical-align: -1px; }
+.swatch.up, .luck-bar.up { background: var(--pos); }
+.swatch.down, .luck-bar.down { background: var(--neg); }
+
+.luck-row {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  outline: none;
+}
+.luck-row:hover, .luck-row:focus-visible { background: var(--row-selected); }
+.luck-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.luck-track { position: relative; height: 16px; }
+.luck-track::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: 50%;
+  width: 1px;
+  background: var(--axis);
+}
+.luck-bar { position: absolute; top: 0; bottom: 0; }
+.luck-bar.up { left: 50%; border-radius: 0 4px 4px 0; }
+.luck-bar.down { right: 50%; border-radius: 4px 0 0 4px; }
+.luck-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+#finishes td.cell { white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .luck-row { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 2.6rem; gap: 8px; }
+}
