@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>League History · Dynasty Rater</title>
-  <link rel="stylesheet" href="style.css?v=20260915e">
-  <script type="module" src="history-app.js?v=20260915e"></script>
+  <link rel="stylesheet" href="style.css?v=20260915g">
+  <script type="module" src="history-app.js?v=20260915g"></script>
 </head>
 <body>
   <div class="page">
@@ -32,18 +32,36 @@
         <div id="awards" class="tiles awards three-up"></div>
       </section>
 
-      <section id="deals-section" class="card span-2" aria-labelledby="deals-title" hidden>
+      <section id="draft-section" class="card span-2" aria-labelledby="draft-title" hidden>
         <div class="card-head">
-          <h2 id="deals-title">Draft room and trade table</h2>
-          <p id="deals-sub" class="sub">Rookie drafts and trades, graded on points above a replacement-level player.</p>
+          <h2 id="draft-title">Drafting</h2>
+          <p id="draft-sub" class="sub">Rookie drafts, graded on points above a replacement-level player.</p>
         </div>
-        <div id="deal-awards" class="tiles awards three-up"></div>
+        <div id="draft-awards" class="tiles awards three-up"></div>
         <div class="split">
           <div class="table-wrap"><table id="steals" class="data"></table></div>
           <div class="table-wrap"><table id="busts" class="data"></table></div>
         </div>
-        <div class="table-wrap stacked"><table id="lopsided" class="data"></table></div>
-        <div class="table-wrap stacked"><table id="deal-managers" class="data"></table></div>
+        <div class="table-wrap"><table id="draft-managers" class="data"></table></div>
+      </section>
+
+      <section id="trade-section" class="card span-2" aria-labelledby="trade-title" hidden>
+        <div class="card-head">
+          <h2 id="trade-title">Trading</h2>
+          <p id="trade-sub" class="sub">Trades, graded on points above a replacement-level player.</p>
+        </div>
+        <div id="trade-awards" class="tiles awards three-up"></div>
+        <div class="table-wrap"><table id="lopsided" class="data"></table></div>
+        <div class="table-wrap stacked"><table id="trade-managers" class="data"></table></div>
+      </section>
+
+      <section id="partners-section" class="card span-2" aria-labelledby="partners-title" hidden>
+        <div class="card-head">
+          <h2 id="partners-title">Trade partners</h2>
+          <p id="partners-sub" class="sub">How each pair of managers has done trading with each other.</p>
+        </div>
+        <div id="partner-awards" class="tiles awards two-up"></div>
+        <div class="table-wrap"><table id="partners" class="data"></table></div>
       </section>
 
       <section id="waivers-section" class="card span-2" aria-labelledby="waivers-title" hidden>

@@ -1,5 +1,6 @@
 import { loadLeagueHistory, loadSiteData } from './data.js';
 import { buildHistory, withEarlierSeasons, CLOSE_GAME_POINTS } from './history.js';
+import { tradePartnerships, PARTNER_MIN_TRADES } from './deals.js';
 import { ordinal } from './rating.js';
 import { $, el, leagueId, darkQuery, showStatus, withTooltip, rampColor, inkFor, wireNav } from './ui.js';
 
@@ -43,7 +44,9 @@ async function load() {
 function render() {
   renderHeader();
   renderAwards();
-  renderDeals();
+  renderDrafting();
+  renderTrading();
+  renderPartners();
   renderWaivers();
   renderLuck();
   renderChampions();
@@ -105,11 +108,12 @@ function award(label, { manager, next }, headline, detail, stat) {
     next ? el('p', { class: 'award-next' }, `Next closest: ${next.teamName} (${stat(next)})`) : null);
 }
 
-// ---------- Draft room and trade table ----------
+// ---------- Drafting, trading and trade partners ----------
 
 const pts = n => `${n < 0 ? '−' : '+'}${Math.abs(Math.round(n)).toLocaleString()}`;
 const pickName = p => `${p.season} #${p.pick_no}`;
 const assetList = side => side.received.map(a => a.label).join(', ') || 'nothing';
+const teamName = id => managerById(id)?.teamName ?? 'Unknown manager';
 
 function infoTile({ label, name, handle: sub, line, detail, next }) {
   return el('div', { class: 'tile award' },
@@ -121,35 +125,35 @@ function infoTile({ label, name, handle: sub, line, detail, next }) {
     next ? el('p', { class: 'award-next' }, `Next closest: ${next}`) : null);
 }
 
-function renderDeals() {
+// Managers with draft and trade grades, in the page's usual manager order.
+function dealPeople() {
   const { deals } = state;
-  const section = $('#deals-section');
-  const people = deals
+  return deals
     ? state.history.managers.filter(m => deals.managers[m.ownerId]).map(m => ({ ...m, deals: deals.managers[m.ownerId] }))
     : [];
-  section.hidden = !people.length;
-  if (!people.length) return;
+}
 
-  const teamName = id => managerById(id)?.teamName ?? 'Unknown manager';
+function showSection(selector, visible) {
+  $(selector).hidden = !visible;
+  return visible;
+}
+
+function managerCell(m) {
+  return [el('span', { class: 'pname' }, m.teamName), handle(m) ? el('span', { class: 'pmeta' }, handle(m)) : null];
+}
+
+function renderDrafting() {
+  const people = dealPeople();
+  if (!showSection('#draft-section', people.length > 0)) return;
+  const { deals } = state;
   const byDraft = [...people].sort((a, b) => b.deals.draft.surplus - a.deals.draft.surplus);
-  const traders = people.filter(m => m.deals.trades.graded > 0);
-  const byTrades = [...traders].sort((a, b) => b.deals.trades.net - a.deals.trades.net);
-  const bestPickOf = id => deals.picks.filter(p => p.userId === id).sort((a, b) => b.surplus - a.surplus)[0];
   const steals = [...deals.picks].sort((a, b) => b.surplus - a.surplus);
-  const graded = deals.trades
-    .filter(t => t.graded)
-    .map(t => {
-      const [winner, loser] = [...t.sides].sort((a, b) => b.net - a.net);
-      return { ...t, winner, loser };
-    })
-    .sort((a, b) => b.winner.net - a.winner.net);
-  const early = deals.trades.length - graded.length;
+  const picksOf = id => steals.filter(p => p.userId === id);
 
-  $('#deals-sub').textContent = `Rookie drafts ${deals.firstSeason}–${deals.throughSeason} and every trade since ${deals.firstSeason}, graded on points above a replacement-level player at the same position.${early ? ` ${plural(early, 'recent trade')} ${early === 1 ? 'is' : 'are'} too early to grade.` : ''}`;
+  $('#draft-sub').textContent = `Rookie drafts ${deals.firstSeason}–${deals.throughSeason}. Each pick is judged on the points above a replacement-level player he scored in his first ${deals.method.draftSeasons} seasons, against what that draft spot usually brings.`;
 
-  const drafter = (label, list) => {
-    const [m, next] = list;
-    const best = bestPickOf(m.ownerId);
+  const drafter = (label, [m, next]) => {
+    const [best] = picksOf(m.ownerId);
     return infoTile({
       label,
       name: m.teamName,
@@ -159,38 +163,16 @@ function renderDeals() {
       next: next && `${next.teamName} (${pts(next.deals.draft.surplus)})`,
     });
   };
-  const negotiator = (label, list) => {
-    const [m, next] = list;
-    const t = m.deals.trades;
-    return infoTile({
-      label,
-      name: m.teamName,
-      handle: handle(m),
-      line: `${pts(t.net)} points across their graded trades`,
-      detail: `${plural(t.graded, 'graded trade')} · won ${t.won}, lost ${t.lost}`,
-      next: next && `${next.teamName} (${pts(next.deals.trades.net)})`,
-    });
-  };
   const [steal, nextSteal] = steals;
-  const [lopsided, nextLopsided] = graded;
-  $('#deal-awards').replaceChildren(
+  $('#draft-awards').replaceChildren(
     drafter('Best drafter', byDraft),
     drafter('Worst drafter', [...byDraft].reverse()),
-    ...(byTrades.length ? [negotiator('Best negotiator', byTrades), negotiator('Worst negotiator', [...byTrades].reverse())] : []),
     steal ? infoTile({
       label: 'Biggest draft steal',
       name: steal.player,
       handle: `${pickName(steal)} · ${teamName(steal.userId)}`,
       line: `${Math.round(steal.outcome)} points above replacement, where that pick usually brings ${Math.round(steal.expected)}`,
       next: nextSteal && `${nextSteal.player}, ${pickName(nextSteal)} (${pts(nextSteal.surplus)})`,
-    }) : null,
-    lopsided ? infoTile({
-      label: 'Most lopsided trade',
-      name: teamName(lopsided.winner.userId),
-      handle: `${lopsided.season} · over ${teamName(lopsided.loser.userId)}`,
-      line: `Won by ${Math.round(lopsided.winner.net)} points`,
-      detail: `Got ${assetList(lopsided.winner)} for ${assetList(lopsided.loser)}`,
-      next: nextLopsided && `${teamName(nextLopsided.winner.userId)} in ${nextLopsided.season} (${pts(nextLopsided.winner.net)})`,
     }) : null,
   );
 
@@ -200,9 +182,64 @@ function renderDeals() {
     el('td', { class: 'num' }, Math.round(p.outcome).toLocaleString()),
     el('td', { class: 'num hide-narrow' }, Math.round(p.expected).toLocaleString()),
     el('td', { class: 'num' }, pts(p.surplus))));
-  const pickHead = thead([['Pick', 'num'], 'Player', ['Produced', 'num'], ['Typical', 'num hide-narrow'], ['+/−', 'num']]);
-  $('#steals').replaceChildren(el('caption', {}, 'Biggest draft steals'), pickHead, el('tbody', {}, pickRows(steals)));
-  $('#busts').replaceChildren(el('caption', {}, 'Biggest draft busts'), pickHead.cloneNode(true), el('tbody', {}, pickRows([...steals].reverse())));
+  const pickHead = () => thead([['Pick', 'num'], 'Player', ['Produced', 'num'], ['Typical', 'num hide-narrow'], ['+/−', 'num']]);
+  $('#steals').replaceChildren(el('caption', {}, 'Biggest steals'), pickHead(), el('tbody', {}, pickRows(steals)));
+  $('#busts').replaceChildren(el('caption', {}, 'Biggest busts'), pickHead(), el('tbody', {}, pickRows([...steals].reverse())));
+
+  const pickCell = p => (p
+    ? [el('span', { class: 'pname' }, p.player), el('span', { class: 'pmeta' }, `${pickName(p)} · ${pts(p.surplus)}`)]
+    : el('span', { class: 'empty' }, 'None'));
+  $('#draft-managers').replaceChildren(
+    el('caption', {}, 'Drafting by manager'),
+    thead(['Manager', ['Picks', 'num hide-narrow'], ['Draft +/−', 'num'], ['Best pick', 'hide-narrow'], ['Worst pick', 'hide-narrow']]),
+    el('tbody', {}, byDraft.map(m => {
+      const picks = picksOf(m.ownerId);
+      return el('tr', {},
+        el('td', {}, managerCell(m)),
+        el('td', { class: 'num hide-narrow' }, String(m.deals.draft.picks)),
+        el('td', { class: 'num' }, pts(m.deals.draft.surplus)),
+        el('td', { class: 'hide-narrow' }, pickCell(picks[0])),
+        el('td', { class: 'hide-narrow' }, pickCell(picks.length > 1 ? picks.at(-1) : null)));
+    })),
+  );
+}
+
+function renderTrading() {
+  const people = dealPeople().filter(m => m.deals.trades.total > 0);
+  if (!showSection('#trade-section', people.length > 0)) return;
+  const { deals } = state;
+  const byTrades = people.filter(m => m.deals.trades.graded > 0).sort((a, b) => b.deals.trades.net - a.deals.trades.net);
+  const graded = deals.trades
+    .filter(t => t.graded)
+    .map(t => {
+      const [winner, loser] = [...t.sides].sort((a, b) => b.net - a.net);
+      return { ...t, winner, loser };
+    })
+    .sort((a, b) => b.winner.net - a.winner.net);
+  const early = deals.trades.length - graded.length;
+
+  $('#trade-sub').textContent = `Every trade since ${deals.firstSeason}. Each side gets the points above replacement of what it received minus what it gave up, from the trade through the next season; a traded pick counts as the player drafted with it.${early ? ` ${plural(early, 'recent trade')} ${early === 1 ? 'is' : 'are'} too early to grade.` : ''}`;
+
+  const negotiator = (label, [m, next]) => infoTile({
+    label,
+    name: m.teamName,
+    handle: handle(m),
+    line: `${pts(m.deals.trades.net)} points across their graded trades`,
+    detail: `${plural(m.deals.trades.graded, 'graded trade')} · won ${m.deals.trades.won}, lost ${m.deals.trades.lost}`,
+    next: next && `${next.teamName} (${pts(next.deals.trades.net)})`,
+  });
+  const [lopsided, nextLopsided] = graded;
+  $('#trade-awards').replaceChildren(
+    ...(byTrades.length ? [negotiator('Best negotiator', byTrades), negotiator('Worst negotiator', [...byTrades].reverse())] : []),
+    lopsided ? infoTile({
+      label: 'Most lopsided trade',
+      name: teamName(lopsided.winner.userId),
+      handle: `${lopsided.season} · over ${teamName(lopsided.loser.userId)}`,
+      line: `Won by ${Math.round(lopsided.winner.net)} points`,
+      detail: `Got ${assetList(lopsided.winner)} for ${assetList(lopsided.loser)}`,
+      next: nextLopsided && `${teamName(nextLopsided.winner.userId)} in ${nextLopsided.season} (${pts(nextLopsided.winner.net)})`,
+    }) : null,
+  );
 
   $('#lopsided').replaceChildren(
     el('caption', {}, 'Most lopsided trades'),
@@ -215,16 +252,58 @@ function renderDeals() {
       el('td', { class: 'num' }, pts(t.winner.net))))),
   );
 
-  $('#deal-managers').replaceChildren(
-    el('caption', {}, 'Drafting and trading by manager'),
-    thead(['Manager', ['Picks', 'num hide-narrow'], ['Draft +/−', 'num'], ['Trades', 'num hide-narrow'], ['Won-lost', 'num hide-narrow'], ['Trade +/−', 'num']]),
-    el('tbody', {}, byDraft.map(m => el('tr', {},
-      el('td', {}, el('span', { class: 'pname' }, m.teamName), handle(m) ? el('span', { class: 'pmeta' }, handle(m)) : null),
-      el('td', { class: 'num hide-narrow' }, String(m.deals.draft.picks)),
-      el('td', { class: 'num' }, pts(m.deals.draft.surplus)),
-      el('td', { class: 'num hide-narrow' }, `${m.deals.trades.graded} of ${m.deals.trades.total}`),
-      el('td', { class: 'num hide-narrow' }, `${m.deals.trades.won}-${m.deals.trades.lost}`),
+  const tradeOrder = m => (m.deals.trades.graded ? m.deals.trades.net : -1e9);
+  $('#trade-managers').replaceChildren(
+    el('caption', {}, 'Trading by manager'),
+    thead(['Manager', ['Trades', 'num hide-narrow'], ['Won-lost', 'num'], ['Trade +/−', 'num']]),
+    el('tbody', {}, [...people].sort((a, b) => tradeOrder(b) - tradeOrder(a)).map(m => el('tr', {},
+      el('td', {}, managerCell(m)),
+      el('td', { class: 'num hide-narrow' }, `${m.deals.trades.graded} graded of ${m.deals.trades.total}`),
+      el('td', { class: 'num' }, `${m.deals.trades.won}-${m.deals.trades.lost}`),
       el('td', { class: 'num' }, m.deals.trades.graded ? pts(m.deals.trades.net) : '—')))),
+  );
+}
+
+function renderPartners() {
+  const partners = state.deals ? tradePartnerships(state.deals.trades) : null;
+  if (!showSection('#partners-section', Boolean(partners?.pairs.length))) return;
+  const [fairPair, nextFair] = partners.fair;
+  const [oneSided, nextOneSided] = partners.lopsided;
+
+  $('#partners-sub').textContent = `How each pair of managers has done trading with each other. ${partners.pairs.length} pairs have made a trade; the awards need at least ${PARTNER_MIN_TRADES} graded trades between the same two managers.`;
+
+  $('#partner-awards').replaceChildren(
+    fairPair ? infoTile({
+      label: 'Best trade partners',
+      name: `${teamName(fairPair.users[0])} & ${teamName(fairPair.users[1])}`,
+      handle: `${plural(fairPair.graded, 'graded trade')} together`,
+      line: `Came out within ${Math.round(fairPair.margin)} points of even`,
+      next: nextFair && `${teamName(nextFair.users[0])} & ${teamName(nextFair.users[1])} (${plural(nextFair.graded, 'trade')}, within ${Math.round(nextFair.margin)})`,
+    }) : null,
+    oneSided ? infoTile({
+      label: 'Worst trade partner',
+      name: teamName(oneSided.loser),
+      handle: `to ${teamName(oneSided.winner)}`,
+      line: `Gave up ${Math.round(oneSided.margin)} points over ${plural(oneSided.graded, 'graded trade')} with ${teamName(oneSided.winner)}`,
+      detail: `${plural(oneSided.trades, 'trade')} between them in all`,
+      next: nextOneSided && `${teamName(nextOneSided.loser)} to ${teamName(nextOneSided.winner)} (${pts(-nextOneSided.margin)} over ${plural(nextOneSided.graded, 'trade')})`,
+    }) : null,
+  );
+
+  const partnerCell = row => (row
+    ? [el('span', { class: 'pname' }, teamName(row.partner)), el('span', { class: 'pmeta' }, `${pts(row.net)} · ${plural(row.graded, 'graded trade')}`)]
+    : el('span', { class: 'empty' }, 'None'));
+  $('#partners').replaceChildren(
+    el('caption', {}, 'Trade partners by manager'),
+    thead(['Manager', 'Best partner', 'Worst partner']),
+    el('tbody', {}, dealPeople().map(m => {
+      const entry = partners.byManager.get(m.ownerId);
+      // Team name only here: three name columns don't fit a phone with handles too.
+      return el('tr', {},
+        el('td', {}, el('span', { class: 'pname' }, m.teamName)),
+        el('td', {}, partnerCell(entry?.best)),
+        el('td', {}, partnerCell(entry?.worst)));
+    })),
   );
 }
 
@@ -447,7 +526,8 @@ function dealsHowItems(item) {
     item('Points above replacement: ', `each week, a player’s points minus what a replacement-level player at his position scores — the ${ordinal(r.QB)}-best QB, ${ordinal(r.TE)}-best TE and ${ordinal(r.RB)}-best RB and WR that season, about the best a 10-team league leaves on waivers. A player who ends up below that counts as zero. Without it, quarterbacks would win every comparison, since 6-point passing TDs give them the most raw points while every team only starts one.`),
     item('Drafting: ', `each rookie pick is judged on the points above replacement the player scored in his first ${draftSeasons} NFL seasons, compared with what that draft spot usually produces, scaled to the rest of the same draft class so newer classes aren’t penalized for having played fewer seasons. Credit goes to whoever made the pick.`),
     item('Trading: ', `each side gets the points above replacement of what it received minus what it gave up, from the trade through the next season. A traded pick counts as the player drafted with it, over his first ${tradeSeasons} seasons. Trades with any of those seasons still unplayed aren’t graded yet.`),
-    item('Waiver wire: ', 'a waiver claim or free-agent pickup earns the points above replacement the player scored in the weeks that team started him, from the pickup through the end of that season. When another team picks up a player you dropped that same season, what they get from him counts against you (only the last team to drop him is charged). Net is pickups minus drops.'),
+    item('Trade partners: ', `every graded trade between the same two managers, added up. Best trade partners have made at least ${PARTNER_MIN_TRADES} graded trades together and come out closest to even; the worst trade partner has given up the most to a single partner over at least ${PARTNER_MIN_TRADES}. The table counts every pairing.`),
+    item('Waiver wire: ','a waiver claim or free-agent pickup earns the points above replacement the player scored in the weeks that team started him, from the pickup through the end of that season. When another team picks up a player you dropped that same season, what they get from him counts against you (only the last team to drop him is charged). Net is pickups minus drops.'),
     item('Updated: ', `draft, trade and waiver grades run through the ${deals.throughSeason} season and are rebuilt after each season (last built ${deals.generated}).`),
   ];
 }

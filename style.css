@@ -386,10 +386,18 @@ h2 { font-size: 16px; margin: 0; }
 
 #finishes td.cell { white-space: nowrap; }
 
-/* Six-award grids: three across when wide. */
-#deal-awards { margin-bottom: 20px; }
-@media (min-width: 1000px) { .three-up { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.table-wrap.stacked + .table-wrap.stacked { margin-top: 20px; }
+/* Award grids sized to their count when wide; tables below get breathing room. */
+@media (min-width: 1000px) {
+  .three-up { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .two-up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.awards + .split, .awards + .table-wrap { margin-top: 20px; }
+/* Tables stacked directly in a card; .split already brings its own bottom margin. */
+.card > .table-wrap + .table-wrap { margin-top: 20px; }
+@media (max-width: 640px) {
+  /* Team names like SuhMuhFuhDihBih have no break points. */
+  .data .pname { overflow-wrap: anywhere; }
+}
 
 @media (max-width: 640px) {
   .luck-row { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 2.6rem; gap: 8px; }
