@@ -583,7 +583,7 @@ function renderHow() {
       el('li', {}, el('strong', {}, `${seasons[0]} picks `),
         'are priced early, mid or late by where the original team ranks this season, weakest roster picking first. Later picks use FantasyCalc’s generic value for that round.'),
       el('li', {}, el('strong', {}, 'Scores: '),
-        '100 is the best roster in the league; 85 means 85% of the best roster’s value. Outlook splits the league at the median of each score.'),
+        `100 is the best roster in the league. This season, 85 means 85% of the best roster’s value. Picks and bench depth add a similar amount to every roster, which would bunch long-term scores near the top, so those are stretched: the weakest roster gets ${Math.round(state.rating.futureFloor)}, the same gap as between the best and weakest long-term starting lineups, and everyone else keeps their order and relative gaps. Outlook splits the league at the median of each score.`),
       el('li', {}, el('strong', {}, 'Not counted: '), 'kickers and defenses, which have no trade market to value them.'),
       el('li', {}, el('strong', {}, 'Updates: '),
         'everything reloads each time the page opens or you press Refresh. Rosters, trades and picks come from Sleeper and are at most about 5 minutes old. Player values are FantasyCalc’s latest, which shift as they recalculate from new trades, and QB projections change when Sleeper updates them.'),

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   lineupSlots, bestLineup, benchValue, positionDepth, pickSeasons, futurePicks,
-  pickTier, pickValue, ordinal, rateLeague, qbScoringBoosts,
+  pickTier, pickValue, ordinal, rateLeague, qbScoringBoosts, stretchScores,
 } from '../rating.js';
 import { fantasyCalcUrl, trimPlayers } from '../data.js';
 
@@ -151,7 +151,10 @@ test('rateLeague separates win-now from rising and values traded picks by projec
   assert.equal(a.futureValue, 13400 + 4900);
   assert.equal(b.futureValue, 42500 + 10900);
   assert.equal(b.futureRank, 1);
-  assert.ok(Math.abs(a.futureScore - (100 * 18300) / 53400) < 1e-9);
+  // Long term is stretched: the lowest total lands at the lowest starters-only
+  // score (A's 13,400 starters vs B's 42,500), not at 18,300 / 53,400.
+  near(a.futureScore, (100 * 13400) / 42500);
+  assert.equal(b.futureScore, 100);
 
   assert.equal(a.quadrant, 'win-now');
   assert.equal(b.quadrant, 'rising');
@@ -218,4 +221,9 @@ test('no projections means no QB boost', () => {
   const { teams, qbBoost } = rateLeague(input);
   assert.equal(qbBoost, null);
   assert.equal(teams.find(t => t.rosterId === 1).currentValue, 45000);
+});
+
+test('stretchScores maps best to 100 and worst to the floor, keeping order and gaps', () => {
+  assert.deepEqual(stretchScores([50, 60, 80], 40), [40, 60, 100]);
+  assert.deepEqual(stretchScores([70, 70], 40), [100, 100]);
 });

@@ -149,6 +149,13 @@ export function qbScoringBoosts(projections, scoring) {
   return { passTd, byPlayer, typical: median(ratios), min: Math.min(...ratios), max: Math.max(...ratios) };
 }
 
+// Linear map: highest value → 100, lowest → floor. Keeps order and relative gaps.
+export function stretchScores(values, floor) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  return values.map(v => (max === min ? 100 : floor + ((100 - floor) * (v - min)) / (max - min)));
+}
+
 const sumBy = (items, fn) => items.reduce((total, item) => total + fn(item), 0);
 
 function rank(teams, valueOf, assign) {
@@ -204,6 +211,7 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
     const later = bestLineup(skill, slots, 'dynasty');
     const starters = now.lineup.map(s => s.player).filter(Boolean);
     const aged = starters.filter(p => p.age != null);
+    const futureStarterValue = sumBy(later.lineup.filter(s => s.player), s => s.player.dynasty);
 
     const groups = Object.fromEntries(SKILL_POSITIONS.map(pos => {
       const atPos = skill.filter(p => p.position === pos);
@@ -228,8 +236,8 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
       currentLineup: now,
       futureLineup: later,
       currentValue: sumBy(starters, p => p.redraft) + benchValue(now.bench, 'redraft', BENCH_TIERS.current),
-      futurePlayerValue: sumBy(later.lineup.filter(s => s.player), s => s.player.dynasty)
-        + benchValue(later.bench, 'dynasty', BENCH_TIERS.future),
+      futureStarterValue,
+      futurePlayerValue: futureStarterValue + benchValue(later.bench, 'dynasty', BENCH_TIERS.future),
       starterAge: aged.length ? sumBy(aged, p => p.age) / aged.length : null,
       groups,
     };
@@ -269,11 +277,16 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
   }
 
   const maxCurrent = Math.max(...teams.map(t => t.currentValue)) || 1;
-  const maxFuture = Math.max(...teams.map(t => t.futureValue)) || 1;
-  for (const team of teams) {
+  // Picks and bench depth add a similar amount to every roster, which bunches
+  // long-term totals near the top. Stretch them so best-to-worst spans the same
+  // gap the long-term starting lineups do; order and relative gaps are kept.
+  const starterValues = teams.map(t => t.futureStarterValue);
+  const futureFloor = (100 * Math.min(...starterValues)) / (Math.max(...starterValues) || 1);
+  const futureScores = stretchScores(teams.map(t => t.futureValue), futureFloor);
+  teams.forEach((team, i) => {
     team.currentScore = (100 * team.currentValue) / maxCurrent;
-    team.futureScore = (100 * team.futureValue) / maxFuture;
-  }
+    team.futureScore = futureScores[i];
+  });
   const midCurrent = median(teams.map(t => t.currentScore));
   const midFuture = median(teams.map(t => t.futureScore));
   for (const team of teams) {
@@ -289,6 +302,7 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
     seasons,
     midCurrent,
     midFuture,
+    futureFloor,
     qbBoost: qbBoost && { passTd: qbBoost.passTd, typical: qbBoost.typical, min: qbBoost.min, max: qbBoost.max },
     unmatchedPicks: [...unmatchedPicks],
   };
