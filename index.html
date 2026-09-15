@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dynasty Rater</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="page-head">
+      <div>
+        <h1 id="league-name">Dynasty Rater</h1>
+        <p id="league-meta" class="sub">Loading your league…</p>
+      </div>
+      <button id="refresh" class="btn" type="button">Refresh</button>
+    </header>
+
+    <p id="status" class="status" role="status" hidden></p>
+
+    <main id="app" class="grid" hidden>
+      <section class="card span-2" aria-labelledby="rank-title">
+        <div class="card-head">
+          <h2 id="rank-title">Power rankings</h2>
+          <p class="sub">Scores are out of 100, where 100 is the league's best roster. Pick a team to see its breakdown.</p>
+        </div>
+        <div class="table-wrap"><table id="rankings" class="data"></table></div>
+      </section>
+
+      <section class="card" aria-labelledby="map-title">
+        <div class="card-head">
+          <h2 id="map-title">Now vs. long term</h2>
+          <p class="sub">Right is stronger this season, up is stronger for the years ahead. The lines split the league at the median. The blue dot is the team you're viewing.</p>
+        </div>
+        <div id="scatter" class="scatter"></div>
+      </section>
+
+      <section class="card" aria-labelledby="pos-title">
+        <div class="card-head row">
+          <div>
+            <h2 id="pos-title">Position strength</h2>
+            <p id="pos-sub" class="sub">League rank at each position, 1st is best.</p>
+          </div>
+          <div class="segmented" role="group" aria-label="Rating period">
+            <button type="button" data-when="current" aria-pressed="true">This season</button>
+            <button type="button" data-when="future" aria-pressed="false">Long term</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="positions" class="heat"></table></div>
+      </section>
+
+      <section id="team-detail" class="card span-2" aria-live="polite"></section>
+
+      <details id="how" class="card span-2 how"></details>
+    </main>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+</body>
+</html>
