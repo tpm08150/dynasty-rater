@@ -2,9 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   lineupSlots, bestLineup, benchValue, positionDepth, pickSeasons, futurePicks,
-  pickTier, pickValue, ordinal, rateLeague,
+  pickTier, pickValue, ordinal, rateLeague, qbScoringBoosts,
 } from '../rating.js';
 import { fantasyCalcUrl, trimPlayers } from '../data.js';
+
+const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} ≠ ${expected}`);
 
 const ROSTER_POSITIONS = ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'FLEX', 'FLEX', 'K', 'DEF', 'BN', 'BN'];
 const p = (id, position, redraft, dynasty = redraft) => ({ id, position, redraft, dynasty });
@@ -166,4 +168,54 @@ test('rateLeague separates win-now from rising and values traded picks by projec
   assert.equal(kicker.valued, false);
   assert.ok(a.players.find(x => x.id === 'a3').ir);
   assert.ok(b.players.find(x => x.id === 'b8').taxi);
+});
+
+test('QB boost is league points over 4-point-TD points; small projections get the typical boost', () => {
+  const scoring = { pass_td: 6, pass_yd: 0.04, pass_int: -2, rush_yd: 0.1, rush_td: 6 };
+  const projections = [
+    // 160 + 180 - 20 + 30 = 350 league points; 290 with 4-point TDs. ADP isn't scored.
+    { player_id: 'q1', stats: { pass_yd: 4000, pass_td: 30, pass_int: 10, rush_yd: 300, adp_half_ppr: 20 } },
+    // 120 + 120 + 50 + 30 = 320; 280 with 4-point TDs.
+    { player_id: 'q2', stats: { pass_yd: 3000, pass_td: 20, rush_yd: 500, rush_td: 5 } },
+    // 50-point baseline is under the reliability floor.
+    { player_id: 'q3', stats: { pass_yd: 1000, pass_td: 5 } },
+  ];
+  const boosts = qbScoringBoosts(projections, scoring);
+  near(boosts.byPlayer.get('q1'), 350 / 290);
+  near(boosts.byPlayer.get('q2'), 320 / 280);
+  assert.equal(boosts.byPlayer.has('q3'), false);
+  near(boosts.typical, (350 / 290 + 320 / 280) / 2);
+  near(boosts.min, 320 / 280);
+  near(boosts.max, 350 / 290);
+
+  assert.equal(qbScoringBoosts(projections, { ...scoring, pass_td: 4 }), null);
+  assert.equal(qbScoringBoosts([], scoring), null);
+});
+
+test('rateLeague applies the QB boost to both values and leaves other positions alone', () => {
+  const input = twoTeamLeague();
+  input.league.scoring_settings = { pass_td: 6, pass_yd: 0.04 };
+  // a1: 160 + 180 = 340 points, 280 with 4-point TDs. b1 has no projection.
+  input.projections = [{ player_id: 'a1', stats: { pass_yd: 4000, pass_td: 30 } }];
+  const r = 340 / 280;
+  const { teams, qbBoost } = rateLeague(input);
+  const a = teams.find(t => t.rosterId === 1);
+  const b = teams.find(t => t.rosterId === 2);
+
+  near(qbBoost.typical, r);
+  const a1 = a.players.find(p => p.id === 'a1');
+  near(a1.redraft, 9000 * r);
+  near(a1.dynasty, 3000 * r);
+  near(b.players.find(p => p.id === 'b1').redraft, 5000 * r);
+  assert.equal(a.players.find(p => p.id === 'a2').redraft, 7000);
+  near(a.currentValue, 45000 + 9000 * (r - 1));
+  near(b.currentValue, 20900 + 5000 * (r - 1));
+});
+
+test('no projections means no QB boost', () => {
+  const input = twoTeamLeague();
+  input.league.scoring_settings = { pass_td: 6 };
+  const { teams, qbBoost } = rateLeague(input);
+  assert.equal(qbBoost, null);
+  assert.equal(teams.find(t => t.rosterId === 1).currentValue, 45000);
 });

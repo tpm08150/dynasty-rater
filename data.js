@@ -22,11 +22,29 @@ export async function loadLeagueData(leagueId) {
   // Sleeper answers an unknown league ID with 200 and a null body.
   if (!league) throw new Error(`Sleeper has no league with ID ${leagueId}`);
 
-  const [values, playerInfo] = await Promise.all([
+  const needsQbBoost = (league.scoring_settings.pass_td ?? 4) !== 4;
+  const [values, playerInfo, qbInfo] = await Promise.all([
     getJSON(fantasyCalcUrl(league)),
     loadPlayers(),
+    needsQbBoost ? loadQbProjections(Number(league.season)) : { projections: [] },
   ]);
-  return { league, users, rosters, tradedPicks, drafts, values, ...playerInfo };
+  return { league, users, rosters, tradedPicks, drafts, values, ...playerInfo, ...qbInfo };
+}
+
+// Passing TD counts for the QB scoring boost. Sleeper's season projections
+// aren't in its documented API, but its own app uses them. Before this
+// season's are posted, last season's actual stats stand in.
+async function loadQbProjections(season) {
+  const query = 'season_type=regular&position[]=QB';
+  try {
+    const projections = await getJSON(`https://api.sleeper.app/projections/nfl/${season}?${query}`);
+    if (projections?.length) return { projections, projectionSource: `Sleeper’s ${season} projections` };
+    const stats = await getJSON(`https://api.sleeper.app/stats/nfl/${season - 1}?${query}`);
+    if (stats?.length) return { projections: stats, projectionSource: `${season - 1} season stats` };
+    return { projections: [], projectionsError: 'Sleeper has no QB projections or last-season stats yet' };
+  } catch (err) {
+    return { projections: [], projectionsError: `Sleeper’s QB projections didn’t load (${err.message})` };
+  }
 }
 
 // Values must match the league's format: a 1QB value for a superflex league

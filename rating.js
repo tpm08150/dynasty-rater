@@ -127,6 +127,28 @@ export function pickValue(pick, slot, numTeams, pickValues) {
     : { name: generic, tier: null, value: 0, matched: false };
 }
 
+// Projections this small (backups, rookies) make a noisy ratio, so those QBs
+// get the typical boost instead of their own.
+export const RELIABLE_BASELINE_PTS = 150;
+
+// FantasyCalc values assume 4-point passing TDs. For a league that scores them
+// differently, scale each QB by how much that changes their projected season:
+// league-scoring points ÷ the same points with 4-point passing TDs.
+export function qbScoringBoosts(projections, scoring) {
+  const passTd = scoring.pass_td ?? 4;
+  if (passTd === 4 || !projections?.length) return null;
+  const byPlayer = new Map();
+  for (const { player_id: id, stats = {} } of projections) {
+    const points = Object.entries(stats)
+      .reduce((sum, [key, v]) => sum + (typeof v === 'number' ? (scoring[key] ?? 0) * v : 0), 0);
+    const baseline = points - (passTd - 4) * (stats.pass_td ?? 0);
+    if (baseline >= RELIABLE_BASELINE_PTS) byPlayer.set(String(id), points / baseline);
+  }
+  if (!byPlayer.size) return null;
+  const ratios = [...byPlayer.values()];
+  return { passTd, byPlayer, typical: median(ratios), min: Math.min(...ratios), max: Math.max(...ratios) };
+}
+
 const sumBy = (items, fn) => items.reduce((total, item) => total + fn(item), 0);
 
 function rank(teams, valueOf, assign) {
@@ -139,7 +161,8 @@ function median(numbers) {
   return sorted.length % 2 ? sorted[Math.floor(mid)] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-export function rateLeague({ league, users, rosters, tradedPicks, drafts, values, players = {} }) {
+export function rateLeague({ league, users, rosters, tradedPicks, drafts, values, players = {}, projections = [] }) {
+  const qbBoost = qbScoringBoosts(projections, league.scoring_settings ?? {});
   const slots = lineupSlots(league.roster_positions);
   const depth = positionDepth(slots);
   const numTeams = rosters.length;
@@ -159,14 +182,17 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
     const rosterPlayers = (roster.players ?? []).map(id => {
       const fc = bySleeperId.get(id);
       const sleeper = players[id];
+      const position = fc?.player.position ?? sleeper?.position ?? '?';
+      const boost = position === 'QB' && qbBoost ? qbBoost.byPlayer.get(id) ?? qbBoost.typical : 1;
       return {
         id,
         name: fc?.player.name ?? sleeper?.name ?? `Player ${id}`,
-        position: fc?.player.position ?? sleeper?.position ?? '?',
+        position,
         team: fc?.player.maybeTeam ?? sleeper?.team ?? null,
         age: fc?.player.maybeAge ?? sleeper?.age ?? null,
-        redraft: fc?.redraftValue ?? 0,
-        dynasty: fc?.value ?? 0,
+        redraft: (fc?.redraftValue ?? 0) * boost,
+        dynasty: (fc?.value ?? 0) * boost,
+        boost,
         valued: Boolean(fc),
         taxi: taxi.has(id),
         ir: reserve.has(id),
@@ -263,6 +289,7 @@ export function rateLeague({ league, users, rosters, tradedPicks, drafts, values
     seasons,
     midCurrent,
     midFuture,
+    qbBoost: qbBoost && { passTd: qbBoost.passTd, typical: qbBoost.typical, min: qbBoost.min, max: qbBoost.max },
     unmatchedPicks: [...unmatchedPicks],
   };
 }

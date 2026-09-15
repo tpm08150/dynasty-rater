@@ -41,6 +41,10 @@ const fmtValue = n => (n ? Math.round(n).toLocaleString() : '—');
 const fmtAge = n => (n == null ? '—' : n.toFixed(1));
 const pprLabel = rec => ({ 0: 'Standard', 0.5: 'Half PPR', 1: 'PPR' })[rec] ?? `${rec} PPR`;
 const teamById = id => state.rating.teams.find(t => t.rosterId === id);
+const signedPct = ratio => {
+  const pct = Math.round((ratio - 1) * 100);
+  return `${pct < 0 ? '−' : '+'}${Math.abs(pct)}%`;
+};
 
 function readSavedTeam() {
   try { return Number(localStorage.getItem(TEAM_KEY)) || null; } catch { return null; }
@@ -84,6 +88,9 @@ function showStatus(text, isError = false) {
 function showNotes() {
   const notes = [];
   if (state.data.playersError) notes.push(state.data.playersError);
+  if (state.data.projectionsError) {
+    notes.push(`${state.data.projectionsError}, so quarterbacks aren’t adjusted for ${state.data.league.scoring_settings.pass_td}-point passing TDs and are underrated.`);
+  }
   if (state.rating.unmatchedPicks.length) {
     notes.push(`FantasyCalc has no value for ${state.rating.unmatchedPicks.join(', ')}, so those picks count as 0.`);
   }
@@ -481,7 +488,12 @@ function playerCell(p) {
     el('span', { class: 'pname' }, p.name),
     p.taxi ? el('span', { class: 'chip' }, 'Taxi') : null,
     p.ir ? el('span', { class: 'chip' }, 'IR') : null,
-    el('span', { class: 'pmeta' }, [p.position, p.team, p.age != null ? `age ${Math.floor(p.age)}` : null].filter(Boolean).join(' · ')),
+    el('span', { class: 'pmeta' }, [
+      p.position,
+      p.team,
+      p.age != null ? `age ${Math.floor(p.age)}` : null,
+      p.valued && p.boost !== 1 ? `${signedPct(p.boost)} for ${state.rating.qbBoost.passTd}-pt TDs` : null,
+    ].filter(Boolean).join(' · ')),
   ];
 }
 
@@ -546,12 +558,17 @@ function renderHow() {
   const future = BENCH_TIERS.future;
   const current = BENCH_TIERS.current[0];
   const percent = w => `${Math.round(w * 100)}%`;
+  const { qbBoost } = state.rating;
   const caveats = [];
-  if ((league.scoring_settings.pass_td ?? 4) !== 4) {
-    caveats.push(`Your league gives ${league.scoring_settings.pass_td} points per passing TD. FantasyCalc values assume 4, so quarterbacks are probably a little underrated here.`);
+  if (qbBoost) {
+    caveats.push(['Quarterbacks: ',
+      `FantasyCalc values assume 4-point passing TDs. Your league gives ${qbBoost.passTd}, so each QB’s values change by the share of points that adds to their projected season (from ${state.data.projectionSource}): typically ${signedPct(qbBoost.typical)}, ranging from ${signedPct(qbBoost.min)} for running QBs to ${signedPct(qbBoost.max)} for high-volume passers. Backups with small projections get the typical change.`]);
+  } else if ((league.scoring_settings.pass_td ?? 4) !== 4) {
+    caveats.push(['Quarterbacks: ',
+      `Your league gives ${league.scoring_settings.pass_td} points per passing TD, but the projections needed to adjust for it didn’t load, so QBs use FantasyCalc’s 4-point values.`]);
   }
   if (league.scoring_settings.bonus_rec_te) {
-    caveats.push('Your league gives tight ends a reception bonus that FantasyCalc values don’t include, so tight ends are probably underrated.');
+    caveats.push(['Tight ends: ', 'Your league gives tight ends a reception bonus that FantasyCalc values don’t include, so tight ends are probably underrated.']);
   }
 
   $('#how').replaceChildren(
@@ -566,7 +583,9 @@ function renderHow() {
       el('li', {}, el('strong', {}, 'Scores: '),
         '100 is the best roster in the league; 85 means 85% of the best roster’s value. Outlook splits the league at the median of each score.'),
       el('li', {}, el('strong', {}, 'Not counted: '), 'kickers and defenses, which have no trade market to value them.'),
-      caveats.map(c => el('li', {}, el('strong', {}, 'Scoring: '), c))),
+      el('li', {}, el('strong', {}, 'Updates: '),
+        'everything reloads each time the page opens or you press Refresh. Rosters, trades and picks come from Sleeper and are at most about 5 minutes old. Player values are FantasyCalc’s latest, which shift as they recalculate from new trades, and QB projections change when Sleeper updates them.'),
+      caveats.map(([label, text]) => el('li', {}, el('strong', {}, label), text))),
     el('p', {}, 'Rosters and picks come live from ',
       el('a', { href: 'https://sleeper.com', target: '_blank', rel: 'noopener' }, 'Sleeper'),
       '; values from ',
