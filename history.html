@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>League History · Dynasty Rater</title>
-  <link rel="stylesheet" href="style.css?v=20260915b">
-  <script type="module" src="history-app.js?v=20260915b"></script>
+  <link rel="stylesheet" href="style.css?v=20260915d">
+  <script type="module" src="history-app.js?v=20260915d"></script>
 </head>
 <body>
   <div class="page">
@@ -44,6 +44,19 @@
         </div>
         <div class="table-wrap stacked"><table id="lopsided" class="data"></table></div>
         <div class="table-wrap stacked"><table id="deal-managers" class="data"></table></div>
+      </section>
+
+      <section id="waivers-section" class="card span-2" aria-labelledby="waivers-title" hidden>
+        <div class="card-head">
+          <h2 id="waivers-title">Waiver wire</h2>
+          <p id="waivers-sub" class="sub">Waiver claims and free-agent pickups, graded on what they did in the lineups that picked them up.</p>
+        </div>
+        <div id="waiver-awards" class="tiles awards"></div>
+        <div class="split">
+          <div class="table-wrap"><table id="pickups" class="data"></table></div>
+          <div class="table-wrap"><table id="drops" class="data"></table></div>
+        </div>
+        <div class="table-wrap stacked"><table id="waiver-managers" class="data"></table></div>
       </section>
 
       <section class="card" aria-labelledby="luck-title">

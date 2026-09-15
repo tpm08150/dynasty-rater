@@ -4,7 +4,7 @@ import { ordinal } from './rating.js';
 import { $, el, leagueId, darkQuery, showStatus, withTooltip, rampColor, inkFor, wireNav } from './ui.js';
 
 // Bump when data/*.json changes so browsers don't keep a cached copy.
-const DATA_VERSION = '20260915b';
+const DATA_VERSION = '20260915c';
 
 const state = { history: null, deals: null };
 
@@ -43,6 +43,7 @@ function render() {
   renderHeader();
   renderAwards();
   renderDeals();
+  renderWaivers();
   renderLuck();
   renderChampions();
   renderCareers();
@@ -209,15 +210,94 @@ function renderDeals() {
 
   $('#deal-managers').replaceChildren(
     el('caption', {}, 'Drafting and trading by manager'),
-    thead(['Manager', ['Picks', 'num hide-narrow'], ['Draft +/−', 'num'], ['Trades', 'num hide-narrow'], ['Won-lost', 'num hide-narrow'], ['Trade +/−', 'num'], ['Waiver adds', 'num hide-narrow']]),
+    thead(['Manager', ['Picks', 'num hide-narrow'], ['Draft +/−', 'num'], ['Trades', 'num hide-narrow'], ['Won-lost', 'num hide-narrow'], ['Trade +/−', 'num']]),
     el('tbody', {}, byDraft.map(m => el('tr', {},
       el('td', {}, el('span', { class: 'pname' }, m.teamName), handle(m) ? el('span', { class: 'pmeta' }, handle(m)) : null),
       el('td', { class: 'num hide-narrow' }, String(m.deals.draft.picks)),
       el('td', { class: 'num' }, pts(m.deals.draft.surplus)),
       el('td', { class: 'num hide-narrow' }, `${m.deals.trades.graded} of ${m.deals.trades.total}`),
       el('td', { class: 'num hide-narrow' }, `${m.deals.trades.won}-${m.deals.trades.lost}`),
-      el('td', { class: 'num' }, m.deals.trades.graded ? pts(m.deals.trades.net) : '—'),
-      el('td', { class: 'num hide-narrow' }, m.deals.adds.toLocaleString())))),
+      el('td', { class: 'num' }, m.deals.trades.graded ? pts(m.deals.trades.net) : '—')))),
+  );
+}
+
+// ---------- Waiver wire ----------
+
+function renderWaivers() {
+  const { deals } = state;
+  const section = $('#waivers-section');
+  const people = deals?.pickups
+    ? state.history.managers.filter(m => deals.managers[m.ownerId]?.waivers).map(m => ({ ...m, w: deals.managers[m.ownerId].waivers }))
+    : [];
+  section.hidden = !people.length;
+  if (!people.length) return;
+
+  const teamName = id => managerById(id)?.teamName ?? 'Unknown manager';
+  const net = m => m.w.value - m.w.dropCost;
+  const ranked = [...people].sort((a, b) => net(b) - net(a));
+  const pickups = [...deals.pickups].sort((a, b) => b.value - a.value);
+  const drops = pickups.filter(p => p.droppedBy);
+
+  $('#waivers-sub').textContent = `Every waiver claim and free-agent pickup ${deals.firstSeason}–${deals.throughSeason}. A pickup earns the points above replacement he scored in that team’s lineup for the rest of the season; what other teams got from players you dropped counts against you.`;
+
+  const wireTile = (label, [m, next]) => infoTile({
+    label,
+    name: m.teamName,
+    handle: handle(m),
+    line: `${pts(net(m))} points net on the waiver wire`,
+    detail: `Pickups ${pts(m.w.value)}, drops ${pts(-m.w.dropCost)} · ${plural(m.w.adds, 'add')}`,
+    next: next && `${next.teamName} (${pts(net(next))})`,
+  });
+  const [pickup, nextPickup] = pickups;
+  const [drop, nextDrop] = drops;
+  $('#waiver-awards').replaceChildren(
+    wireTile('Best on the waiver wire', ranked),
+    wireTile('Worst on the waiver wire', [...ranked].reverse()),
+    pickup ? infoTile({
+      label: 'Best pickup',
+      name: pickup.player,
+      handle: `${pickup.season} week ${pickup.week} · ${teamName(pickup.userId)}`,
+      line: `${Math.round(pickup.value)} points above replacement over ${plural(pickup.starts, 'start')}`,
+      next: nextPickup && `${nextPickup.player}, ${teamName(nextPickup.userId)} ${nextPickup.season} (${pts(nextPickup.value)})`,
+    }) : null,
+    drop ? infoTile({
+      label: 'Costliest drop',
+      name: teamName(drop.droppedBy),
+      handle: `dropped ${drop.player} in ${drop.season}`,
+      line: `${teamName(drop.userId)} picked him up and got ${Math.round(drop.value)} points above replacement over ${plural(drop.starts, 'start')}`,
+      next: nextDrop && `${teamName(nextDrop.droppedBy)} dropping ${nextDrop.player} in ${nextDrop.season} (${pts(-nextDrop.value)})`,
+    }) : null,
+  );
+
+  const playerCell = (p, meta) => [el('span', { class: 'pname' }, p.player), el('span', { class: 'pmeta' }, [p.position, meta].filter(Boolean).join(' · '))];
+  $('#pickups').replaceChildren(
+    el('caption', {}, 'Best pickups'),
+    thead(['When', 'Player', ['Starts', 'num hide-narrow'], ['Value', 'num']]),
+    el('tbody', {}, pickups.slice(0, 5).map(p => el('tr', {},
+      el('td', {}, `${p.season} wk ${p.week}`),
+      el('td', {}, playerCell(p, teamName(p.userId))),
+      el('td', { class: 'num hide-narrow' }, String(p.starts)),
+      el('td', { class: 'num' }, pts(p.value))))),
+  );
+  $('#drops').replaceChildren(
+    el('caption', {}, 'Costliest drops'),
+    thead(['Dropped by', 'Player', ['Starts', 'num hide-narrow'], ['Cost', 'num']]),
+    el('tbody', {}, drops.slice(0, 5).map(p => el('tr', {},
+      el('td', {}, el('span', { class: 'pname' }, teamName(p.droppedBy)), el('span', { class: 'pmeta' }, String(p.season))),
+      el('td', {}, playerCell(p, `to ${teamName(p.userId)}`)),
+      el('td', { class: 'num hide-narrow' }, String(p.starts)),
+      el('td', { class: 'num' }, pts(-p.value))))),
+  );
+  $('#waiver-managers').replaceChildren(
+    el('caption', {}, 'Waiver wire by manager'),
+    thead(['Manager', ['Adds', 'num hide-narrow'], ['Pickups started', 'num hide-narrow'], ['Pickups', 'num'], ['Drops', 'num'], ['Net', 'num']]),
+    el('tbody', {}, ranked.map(m => el('tr', {},
+      el('td', {}, el('span', { class: 'pname' }, m.teamName), handle(m) ? el('span', { class: 'pmeta' }, handle(m)) : null),
+      el('td', { class: 'num hide-narrow' }, m.w.adds.toLocaleString()),
+      el('td', { class: 'num hide-narrow' }, m.w.started.toLocaleString()),
+      el('td', { class: 'num' }, pts(m.w.value)),
+      el('td', { class: 'num' }, pts(-m.w.dropCost)),
+      el('td', { class: 'num' }, pts(net(m)))))),
   );
 }
 
@@ -356,7 +436,8 @@ function dealsHowItems(item) {
     item('Points above replacement: ', `each week, a player’s points minus what a replacement-level player at his position scores — the ${ordinal(r.QB)}-best QB, ${ordinal(r.TE)}-best TE and ${ordinal(r.RB)}-best RB and WR that season, about the best a 10-team league leaves on waivers. A player who ends up below that counts as zero. Without it, quarterbacks would win every comparison, since 6-point passing TDs give them the most raw points while every team only starts one.`),
     item('Drafting: ', `each rookie pick is judged on the points above replacement the player scored in his first ${draftSeasons} NFL seasons, compared with what that draft spot usually produces, scaled to the rest of the same draft class so newer classes aren’t penalized for having played fewer seasons. Credit goes to whoever made the pick.`),
     item('Trading: ', `each side gets the points above replacement of what it received minus what it gave up, from the trade through the next season. A traded pick counts as the player drafted with it, over his first ${tradeSeasons} seasons. Trades with any of those seasons still unplayed aren’t graded yet.`),
-    item('Updated: ', `draft and trade grades run through the ${deals.throughSeason} season and are rebuilt after each season (last built ${deals.generated}). Waiver adds count every waiver claim and free-agent pickup since ${deals.firstSeason}.`),
+    item('Waiver wire: ', 'a waiver claim or free-agent pickup earns the points above replacement the player scored in the weeks that team started him, from the pickup through the end of that season. When another team picks up a player you dropped that same season, what they get from him counts against you (only the last team to drop him is charged). Net is pickups minus drops.'),
+    item('Updated: ', `draft, trade and waiver grades run through the ${deals.throughSeason} season and are rebuilt after each season (last built ${deals.generated}).`),
   ];
 }
 

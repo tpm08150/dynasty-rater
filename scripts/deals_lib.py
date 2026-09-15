@@ -60,6 +60,81 @@ def expected_outcome(pick_no, season, curve):
     return max(0.0, a + b * math.log(pick_no)) * class_mean.get(season, 0.0)
 
 
+PICKUP_TYPES = ('waiver', 'free_agent')
+
+
+def index_adds(transactions):
+    """Every completed add, by (roster_id, player_id), in time order. Transactions
+    need a 'season' key; Sleeper's own objects don't carry one."""
+    index = defaultdict(list)
+    for t in transactions:
+        if t['status'] != 'complete':
+            continue
+        for pid, roster in (t.get('adds') or {}).items():
+            index[(roster, pid)].append((t['season'], t['leg'], t['created'], t['type'], t['transaction_id']))
+    for events in index.values():
+        events.sort()
+    return dict(index)
+
+
+def index_drops(transactions):
+    """Players let go in waiver or free-agent moves: {player_id: [(season, created, roster_id)]}.
+    Players leaving in trades aren't drops."""
+    drops = defaultdict(list)
+    for t in transactions:
+        if t['status'] != 'complete' or t['type'] not in PICKUP_TYPES:
+            continue
+        for pid, roster in (t.get('drops') or {}).items():
+            drops[pid].append((t['season'], t['created'], roster))
+    return dict(drops)
+
+
+def acquisition(index, roster, pid, season, week):
+    """The latest move that put this player on this roster by that week, or None
+    if he got there by the rookie draft or was on the original roster."""
+    for event in reversed(index.get((roster, pid), [])):
+        if (event[0], event[1]) <= (season, week):
+            return event
+    return None
+
+
+def waiver_pickups(lineups, index, weekly_value):
+    """Value of each waiver or free-agent pickup to the team that made it.
+
+    lineups: (season, week, roster_id, starter ids) for every lineup set.
+    weekly_value(season, week, player_id): points above replacement that week.
+    A pickup is judged on the weeks that team started him in the season it was
+    made, floored at zero. Returns {(transaction_id, player_id): pickup}."""
+    pickups = {}
+    for season, week, roster, starters in lineups:
+        for pid in starters:
+            if not pid or pid == '0':
+                continue
+            event = acquisition(index, roster, pid, season, week)
+            if not event or event[3] not in PICKUP_TYPES or event[0] != season:
+                continue
+            pickup = pickups.setdefault((event[4], pid), {
+                'roster': roster, 'player_id': pid, 'season': season,
+                'week': event[1], 'created': event[2], 'starts': 0, 'value': 0.0,
+            })
+            pickup['starts'] += 1
+            pickup['value'] += weekly_value(season, week, pid)
+    for pickup in pickups.values():
+        pickup['value'] = max(0.0, pickup['value'])
+    return pickups
+
+
+def dropped_by(drops, pickup):
+    """The team that most recently dropped this player earlier the same season,
+    unless that was the team picking him back up."""
+    earlier = [d for d in drops.get(pickup['player_id'], [])
+               if d[0] == pickup['season'] and d[1] < pickup['created']]
+    if not earlier:
+        return None
+    roster = max(earlier)[2]
+    return None if roster == pickup['roster'] else roster
+
+
 def trade_start_week(created_ms, kickoff_ms, leg):
     """Offseason trades count the whole season; in-season trades start the next week."""
     return 1 if created_ms < kickoff_ms else leg + 1

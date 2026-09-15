@@ -68,15 +68,18 @@ def load_season(league):
     # Rookie drafts only: 2019 also has a 26-round "draft" that imported the Yahoo rosters.
     draft = next((d for d in drafts if d['status'] == 'complete' and d['settings'].get('rounds') == rounds), None)
     picks = get(f"/v1/draft/{draft['draft_id']}/picks", cache('picks')) if draft else []
+    scored_weeks = range(1, (league['settings'].get('last_scored_leg') or 0) + 1) if finished else range(0)
     with ThreadPoolExecutor(8) as pool:
-        weeks = pool.map(lambda w: get(f'/v1/league/{league_id}/transactions/{w}', cache(f'transactions-{w}')), range(19))
+        weeks = list(pool.map(lambda w: get(f'/v1/league/{league_id}/transactions/{w}', cache(f'transactions-{w}')), range(19)))
+        lineups = list(pool.map(lambda w: (w, get(f'/v1/league/{league_id}/matchups/{w}', cache(f'matchups-{w}'))), scored_weeks))
     return {
         'season': season,
         'league': league,
         'owner': {r['roster_id']: r['owner_id'] for r in rosters},
         'draft': draft,
         'picks': picks,
-        'transactions': [t for week in weeks for t in week],
+        'transactions': [{**t, 'season': season} for week in weeks for t in week],
+        'matchups': dict(lineups),
     }
 
 
@@ -157,7 +160,7 @@ def main():
     managers = defaultdict(lambda: {
         'draft': {'picks': 0, 'surplus': 0.0},
         'trades': {'total': 0, 'graded': 0, 'won': 0, 'lost': 0, 'net': 0.0},
-        'adds': 0,
+        'waivers': {'adds': 0, 'started': 0, 'value': 0.0, 'dropCost': 0.0},
     })
 
     # ---- Drafts ----
@@ -181,18 +184,12 @@ def main():
         m['picks'] += 1
         m['surplus'] += pick['surplus']
 
-    # ---- Trades and waiver moves ----
+    # ---- Trades ----
     trades = []
     for season, info in sorted(seasons.items()):
         owner = info['owner']
         for t in info['transactions']:
-            if t['status'] != 'complete':
-                continue
-            if t['type'] in ('waiver', 'free_agent'):
-                for roster in (t.get('adds') or {}).values():
-                    managers[owner[roster]]['adds'] += 1
-                continue
-            if t['type'] != 'trade':
+            if t['status'] != 'complete' or t['type'] != 'trade':
                 continue
             start = lib.trade_start_week(t['created'], kickoff_ms(season), t['leg'])
 
@@ -233,6 +230,40 @@ def main():
                 'graded': graded, 'sides': sides,
             })
 
+    # ---- Waiver wire (finished seasons) ----
+    done = {s: info for s, info in seasons.items() if s in points}
+    moves = [t for info in done.values() for t in info['transactions']]
+    add_index, drop_index = lib.index_adds(moves), lib.index_drops(moves)
+    for t in moves:
+        if t['status'] == 'complete' and t['type'] in lib.PICKUP_TYPES:
+            for roster in (t.get('adds') or {}).values():
+                managers[done[t['season']]['owner'][roster]]['waivers']['adds'] += 1
+    lineups = ((s, w, m['roster_id'], m.get('starters') or [])
+               for s, info in done.items() for w, games in info['matchups'].items() for m in games)
+
+    def weekly_value(season, week, pid):
+        return points[season]['weeks'].get(week, {}).get(pid, 0.0) - levels[season].get(positions.get(pid), 0.0)
+
+    pickups = []
+    for p in lib.waiver_pickups(lineups, add_index, weekly_value).values():
+        owner = seasons[p['season']]['owner']
+        dropper = lib.dropped_by(drop_index, p)
+        waivers = managers[owner[p['roster']]]['waivers']
+        waivers['started'] += 1
+        waivers['value'] += p['value']
+        if dropper is not None:
+            managers[owner[dropper]]['waivers']['dropCost'] += p['value']
+        pickups.append({
+            'season': p['season'], 'week': p['week'], 'userId': owner[p['roster']],
+            'playerId': p['player_id'], 'player': names.get(p['player_id']) or f"Player {p['player_id']}",
+            'position': positions.get(p['player_id']), 'starts': p['starts'], 'value': round(p['value'], 1),
+            'droppedBy': owner[dropper] if dropper is not None else None,
+        })
+    # The page only lists the standouts; manager totals above already include every pickup.
+    best = sorted(pickups, key=lambda p: -p['value'])[:40]
+    costly = sorted((p for p in pickups if p['droppedBy']), key=lambda p: -p['value'])[:40]
+    shown_pickups = list({(p['season'], p['playerId'], p['userId'], p['week']): p for p in best + costly}.values())
+
     out = {
         'leagueIds': [lg['league_id'] for lg in chain],
         'generated': datetime.date.today().isoformat(),
@@ -247,16 +278,21 @@ def main():
             user: {
                 'draft': {'picks': m['draft']['picks'], 'surplus': round(m['draft']['surplus'], 1)},
                 'trades': {**m['trades'], 'net': round(m['trades']['net'], 1)},
-                'adds': m['adds'],
+                'waivers': {**m['waivers'], 'value': round(m['waivers']['value'], 1), 'dropCost': round(m['waivers']['dropCost'], 1)},
             }
             for user, m in managers.items()
         },
         'picks': [{**p, 'outcome': round(p['outcome'], 1), 'expected': round(p['expected'], 1), 'surplus': round(p['surplus'], 1)} for p in picks],
         'trades': trades,
+        'pickups': shown_pickups,
     }
     target = ROOT / 'data' / 'deals.json'
     target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps(out, separators=(',', ':')))
+    print(f"waiver wire: {len(pickups)} pickups started, {sum(1 for p in pickups if p['droppedBy'])} after another team's drop")
+    for user, m in sorted(managers.items(), key=lambda kv: -(kv[1]['waivers']['value'] - kv[1]['waivers']['dropCost'])):
+        w = m['waivers']
+        print(f"  {user}: adds {w['adds']}, started {w['started']}, pickups {w['value']:+.0f}, drop cost {w['dropCost']:.0f}, net {w['value'] - w['dropCost']:+.0f}")
     print(f"wrote {target.relative_to(ROOT)}: {len(picks)} picks, {len(trades)} trades "
           f"({sum(t['graded'] for t in trades)} graded) through {out['throughSeason']}, {target.stat().st_size // 1024} KB")
 
