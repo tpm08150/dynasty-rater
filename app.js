@@ -492,7 +492,9 @@ function playerCell(p) {
       p.position,
       p.team,
       p.age != null ? `age ${Math.floor(p.age)}` : null,
-      p.valued && p.boost !== 1 ? `${signedPct(p.boost)} for ${state.rating.qbBoost.passTd}-pt TDs` : null,
+      // Guard on qbBoost too: for up to 10 minutes after a deploy a browser can
+      // pair this file with a cached rating.js that predates the boost.
+      p.valued && state.rating.qbBoost && p.boost !== 1 ? `${signedPct(p.boost)} for ${state.rating.qbBoost.passTd}-pt TDs` : null,
     ].filter(Boolean).join(' · ')),
   ];
 }
