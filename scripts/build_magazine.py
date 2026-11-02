@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build the power-rankings magazine as a hosted web page and a print PDF.
+"""Build Midwest Dynasty Monthly, the league magazine, as a web page and a print PDF.
 
 Pulls every season from Sleeper, runs the site's own rating engine for current
 roster ratings, reads the draft/trade/waiver grades out of data/deals.json, and
 lays the whole thing out as a print-ready magazine. Run from the repo root:
 
-    python3 scripts/build_magazine.py                # -> magazine.html + out/MWDL-2026-Week8-...pdf
+    python3 scripts/build_magazine.py                # -> magazine.html + out/Midwest-Dynasty-Monthly-....pdf
     python3 scripts/build_magazine.py --out ~/x.pdf  # somewhere else
     python3 scripts/build_magazine.py --html-only    # skip the PDF, just write the page
 
@@ -262,7 +262,7 @@ def team_page(rank, team, prof, text):
       <div class="railblock"><h4>The ledger</h4>{ledger}</div>
     </aside>
   </div>
-  <div class="foot"><span>Midwest Dynasty League · {row['season']} Power Rankings</span><span>{rank} of {prof['teams']}</span></div>
+  <div class="foot"><span>Midwest Dynasty Monthly · {row['season']} Power Rankings</span><span>{rank} of {prof['teams']}</span></div>
 </section>'''
 
 
@@ -285,7 +285,7 @@ def build_html(snapshot, profiles, order, today):
                      f'<div class="d">{E(d)}</div></div>' for l, w, d in copy.HONORS)
     pages = ''.join(team_page(i, teams[u], profiles[u], copy.TEAMS[u]) for i, u in enumerate(order, 1))
     first = min(p['first_season'] for p in profiles.values())
-    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Midwest Dynasty {season} Power Rankings</title><style>
+    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Midwest Dynasty Monthly — {season} Power Rankings</title><style>
 @page {{ size: Letter; margin: 0; }}
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{ font-family: Georgia, 'Times New Roman', serif; color: {INK}; background: {CREAM}; }}
@@ -296,7 +296,8 @@ h1,h2,h3,h4,.kicker,.rk,.sl,.ss,.handle,.foot,.trend,th,.poslab,.pp,.verdict spa
   {{ font-family: 'SF Compact Display','Futura','Helvetica Neue',Arial,sans-serif; }}
 .cover {{ background: {INK}; color: {CREAM}; padding: 0.7in 0.7in 0.5in; display: flex; flex-direction: column; }}
 .masthead {{ border-bottom: 5px solid {ACCENT}; padding-bottom: 10px; }}
-.masthead h1 {{ font-size: 52pt; font-weight: 900; letter-spacing: -1.6px; line-height: .92; text-transform: uppercase; }}
+.masthead h1 {{ font-size: 46pt; font-weight: 900; letter-spacing: -1.5px; line-height: .9; text-transform: uppercase; }}
+.masthead h1 em {{ font-style: normal; color: {ACCENT}; }}
 .masthead .sub {{ font-family: Georgia, serif; font-style: italic; color: #B9B2A4; font-size: 11.5pt; margin-top: 9px; }}
 .issue {{ display: flex; justify-content: space-between; font-size: 8.5pt; letter-spacing: 2.4px;
           text-transform: uppercase; color: #8C867A; margin-top: 12px; font-family: 'SF Compact Display',Arial,sans-serif; }}
@@ -402,7 +403,7 @@ ul.players li:last-child {{ border-bottom: 0; }}
   @media (max-width: 640px) {{
     body {{ padding: 10px 8px 40px; }}
     .page {{ padding: 22px 18px 20px; }}
-    .masthead h1 {{ font-size: 34pt; }}
+    .masthead h1 {{ font-size: 30pt; }}
     .covermain h2 {{ font-size: 54pt; letter-spacing: -2px; }}
     .covermain {{ margin-top: 26px; }}
     .t3row {{ margin-top: 26px; }}
@@ -431,9 +432,9 @@ ul.players li:last-child {{ border-bottom: 0; }}
 
 <section class="page cover">
   <div class="masthead">
-    <h1>Midwest<br>Dynasty</h1>
+    <h1>Midwest<br>Dynasty<br><em>Monthly</em></h1>
     <div class="sub">The official magazine of a ten-team, one-quarterback, half-PPR dynasty league</div>
-    <div class="issue"><span>Week {week}</span><span>{today:%B %Y}</span></div>
+    <div class="issue"><span>{today:%B %Y}</span><span>Through week {week}</span></div>
   </div>
   <div class="covermain">
     <div class="eyebrow">Power Rankings</div>
@@ -537,9 +538,10 @@ def main():
             p['first_season'] = min(p['first_season'], earliest)
 
     order = power_order(snapshot['teams'], {u: p['season'] for u, p in profiles.items()})
-    page = build_html(snapshot, profiles, order, datetime.date.today())
+    today = datetime.date.today()
+    page = build_html(snapshot, profiles, order, today)
 
-    out = args.out or ROOT / 'out' / f'MWDL-{season}-Week{week}-Power-Rankings.pdf'
+    out = args.out or ROOT / 'out' / f'Midwest-Dynasty-Monthly-{today:%Y-%m}.pdf'
     out.parent.mkdir(parents=True, exist_ok=True)
     args.page.parent.mkdir(parents=True, exist_ok=True)
     args.page.write_text(page)
