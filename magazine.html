@@ -1,0 +1,527 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Midwest Dynasty 2026 Power Rankings</title><style>
+@page { size: Letter; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #141414; background: #F7F4EC; }
+.page { width: 8.5in; height: 11in; padding: 0.55in 0.6in 0.45in; position: relative;
+         page-break-after: always; overflow: hidden; background: #F7F4EC; }
+.page:last-child { page-break-after: auto; }
+h1,h2,h3,h4,.kicker,.rk,.sl,.ss,.handle,.foot,.trend,th,.poslab,.pp,.verdict span,.t3,.fl b,.aw .l,.aw .w
+  { font-family: 'SF Compact Display','Futura','Helvetica Neue',Arial,sans-serif; }
+.cover { background: #141414; color: #F7F4EC; padding: 0.7in 0.7in 0.5in; display: flex; flex-direction: column; }
+.masthead { border-bottom: 5px solid #C8372D; padding-bottom: 10px; }
+.masthead h1 { font-size: 52pt; font-weight: 900; letter-spacing: -1.6px; line-height: .92; text-transform: uppercase; }
+.masthead .sub { font-family: Georgia, serif; font-style: italic; color: #B9B2A4; font-size: 11.5pt; margin-top: 9px; }
+.issue { display: flex; justify-content: space-between; font-size: 8.5pt; letter-spacing: 2.4px;
+          text-transform: uppercase; color: #8C867A; margin-top: 12px; font-family: 'SF Compact Display',Arial,sans-serif; }
+.covermain { margin-top: 1.1in; flex: 1; }
+.covermain .eyebrow { color: #C8372D; font-size: 12pt; letter-spacing: 4px; font-weight: 800;
+                       text-transform: uppercase; font-family:'SF Compact Display',Arial,sans-serif; }
+.covermain h2 { font-size: 96pt; font-weight: 900; line-height: .85; letter-spacing: -4px;
+                 text-transform: uppercase; margin: 14px 0 0; }
+.covermain h2 em { font-style: normal; color: #C8372D; }
+.deck { font-size: 14pt; line-height: 1.5; color: #D8D2C6; margin-top: 26px; max-width: 5.6in; }
+.t3row { display: flex; gap: 14px; border-top: 1px solid #39342C; padding-top: 16px; }
+.t3 { flex: 1; }
+.t3 span { display: block; font-size: 30pt; font-weight: 900; color: #C8372D; line-height: 1; }
+.t3 b { display: block; font-size: 12pt; font-weight: 700; margin-top: 4px; }
+.coverfoot { display: flex; margin-top: 14px; padding-top: 12px; border-top: 1px solid #39342C;
+              justify-content: space-between; font-size: 8pt; letter-spacing: 2px; text-transform: uppercase;
+              color: #6E685D; font-family:'SF Compact Display',Arial,sans-serif; }
+.shead { border-bottom: 3px solid #141414; padding-bottom: 8px; margin-bottom: 20px; }
+.shead .kicker { color: #C8372D; font-size: 9pt; letter-spacing: 3px; font-weight: 800; text-transform: uppercase; }
+.shead h2 { font-size: 34pt; font-weight: 900; letter-spacing: -1.2px; text-transform: uppercase; line-height: 1; margin-top: 5px; }
+.shead p { font-size: 10.5pt; color: #4A463E; margin-top: 8px; max-width: 6.4in; line-height: 1.45; }
+table.std { width: 100%; border-collapse: collapse; font-size: 10pt; }
+table.std th { font-size: 7.5pt; letter-spacing: 1.4px; text-transform: uppercase; color: #6E685D;
+                text-align: right; padding: 0 6px 7px; border-bottom: 2px solid #141414; }
+table.std th:nth-child(2) { text-align: left; }
+table.std td { padding: 8px 6px; border-bottom: 1px solid #DCD6C8; }
+table.std td.n { text-align: right; font-variant-numeric: tabular-nums; }
+table.std td.tm { font-weight: 700; }
+table.std td.tm i { display: block; font-style: normal; font-size: 8pt; color: #807A6D;
+                     font-family:'SF Compact Display',Arial,sans-serif; font-weight: 400; }
+table.std tr:nth-child(even) td { background: #F0ECE1; }
+.notes { display: flex; gap: 18px; margin-top: 26px; }
+.note { flex: 1; border-top: 3px solid #C8372D; padding-top: 10px; }
+.note h4 { font-size: 10pt; text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 6px; }
+.note p { font-size: 9.5pt; line-height: 1.5; color: #45413A; }
+.flash { display: flex; gap: 14px; margin-top: 30px; background: #141414; color: #F7F4EC; padding: 18px 16px; }
+.fl { flex: 1; }
+.fl b { display: block; font-size: 23pt; font-weight: 900; color: #F2B33D; line-height: 1; letter-spacing: -1px; }
+.fl span { display: block; font-size: 7.8pt; line-height: 1.5; color: #B9B2A4; margin-top: 7px; }
+.thead { display: flex; align-items: flex-start; gap: 16px; border-bottom: 3px solid #141414; padding-bottom: 14px; }
+.rankbox { width: 1.15in; flex: none; }
+.rk { font-size: 76pt; font-weight: 900; line-height: .78; color: #C8372D; letter-spacing: -5px; }
+.tid { flex: 1; padding-top: 4px; }
+.tid .kicker { color: #807A6D; font-size: 8.5pt; letter-spacing: 2.6px; text-transform: uppercase; font-weight: 700; }
+.tid h2 { font-size: 31pt; font-weight: 900; letter-spacing: -1.1px; line-height: 1.02; margin: 4px 0 5px; }
+.handle { font-size: 9.5pt; color: #45413A; letter-spacing: .4px; }
+.trend { flex: none; text-align: right; padding-top: 6px; }
+.trend span { display: block; font-size: 7.5pt; letter-spacing: 1.8px; text-transform: uppercase; color: #807A6D; }
+.trend b { display: block; font-size: 15pt; font-weight: 900; text-transform: uppercase; letter-spacing: -.3px; margin-top: 2px; }
+.trend i { display: block; font-style: normal; font-size: 8pt; color: #807A6D; margin-top: 1px; }
+.trend.up b { color: #1E7A3C; } .trend.down b { color: #C8372D; } .trend.flat b { color: #6E685D; }
+.tbody { display: flex; gap: 0.32in; margin-top: 18px; }
+.story { flex: 1; display: flex; flex-direction: column; }
+.story h3 { font-size: 25pt; font-weight: 900; line-height: 1.02; letter-spacing: -.8px; margin-bottom: 12px; }
+.story p { font-size: 10.5pt; line-height: 1.62; margin-bottom: 11px; text-align: justify; hyphens: auto; }
+.story > p:first-of-type::first-letter { float: left; font-family:'SF Compact Display',Arial,sans-serif;
+  font-size: 40pt; font-weight: 900; line-height: .78; padding: 3px 7px 0 0; color: #C8372D; }
+.verdict { border-left: 4px solid #C8372D; padding: 11px 0 11px 14px; margin-top: auto; background: #F0ECE1; }
+.verdict span { font-size: 7.5pt; letter-spacing: 2.2px; text-transform: uppercase; color: #807A6D; font-weight: 700; }
+.verdict p { font-size: 12.5pt; font-style: italic; line-height: 1.38; margin-top: 4px; text-align: left; }
+.rail { width: 2.5in; flex: none; }
+.railblock { border-top: 2px solid #141414; padding: 9px 0 13px; }
+.railblock h4 { font-size: 8.5pt; letter-spacing: 2.2px; text-transform: uppercase; color: #C8372D;
+                 font-weight: 800; margin-bottom: 8px; }
+.stat { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px;
+         padding: 3px 0; border-bottom: 1px dotted #CFC8B8; }
+.stat:last-child { border-bottom: 0; }
+.sl { font-size: 8.5pt; color: #5A554B; letter-spacing: .3px; }
+.sv { font-size: 11pt; font-weight: 700; font-family: Georgia, serif; text-align: right;
+       font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ss { font-size: 7pt; color: #908A7C; width: 100%; text-align: right; margin-top: -2px; }
+.posrow { display: flex; gap: 5px; margin-top: 9px; }
+.pos { flex: 1; text-align: center; background: #141414; color: #F7F4EC; padding: 5px 0 4px; border-radius: 3px; }
+.pos span { display: block; font-size: 7pt; letter-spacing: 1.4px; color: #A9A295; }
+.pos b { display: block; font-size: 13pt; font-weight: 900; line-height: 1.1; }
+.poslab { font-size: 7pt; color: #908A7C; text-align: center; margin-top: 4px; letter-spacing: .6px; }
+ul.players { list-style: none; }
+ul.players li { padding: 4px 0; border-bottom: 1px dotted #CFC8B8; }
+ul.players li:last-child { border-bottom: 0; }
+.pn { display: block; font-size: 10pt; font-weight: 700; }
+.pp { display: block; font-size: 7.5pt; color: #807A6D; letter-spacing: 1px; text-transform: uppercase; }
+.foot { position: absolute; left: .6in; right: .6in; bottom: .3in; display: flex; justify-content: space-between;
+         font-size: 7.5pt; letter-spacing: 1.6px; text-transform: uppercase; color: #908A7C;
+         border-top: 1px solid #DCD6C8; padding-top: 7px; }
+.awards { display: flex; flex-wrap: wrap; gap: 14px; }
+.aw { width: calc(50% - 7px); border-top: 3px solid #141414; padding-top: 9px; }
+.aw .l { font-size: 8pt; letter-spacing: 2.2px; text-transform: uppercase; color: #C8372D; font-weight: 800; }
+.aw .w { font-size: 15pt; font-weight: 900; margin: 3px 0; }
+.aw .d { font-size: 9pt; color: #45413A; line-height: 1.45; }
+.method { margin-top: 26px; border-top: 3px solid #C8372D; padding-top: 12px; }
+.method h4 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1.6px; margin-bottom: 8px; }
+.method p { font-size: 9pt; line-height: 1.55; color: #45413A; margin-bottom: 7px; }
+.colophon { color: #908A7C; font-size: 8pt; margin-top: 10px; }
+
+/* The same markup is a paginated magazine in print and a scrolling page on screen. */
+@media screen {
+  body { background: #E6E1D5; padding: 18px 12px 60px; }
+  .page { width: 100%; max-width: 8.5in; height: auto; min-height: 0; margin: 0 auto 18px;
+           border-radius: 6px; box-shadow: 0 4px 18px rgba(0,0,0,.14); padding: 36px 32px 30px; }
+  .foot { position: static; margin-top: 26px; }
+  .covermain { margin-top: 48px; }
+  .t3row { margin-top: 42px; }
+  @media (max-width: 640px) {
+    body { padding: 10px 8px 40px; }
+    .page { padding: 22px 18px 20px; }
+    .masthead h1 { font-size: 34pt; }
+    .covermain h2 { font-size: 54pt; letter-spacing: -2px; }
+    .covermain { margin-top: 26px; }
+    .t3row { margin-top: 26px; }
+    .deck { font-size: 12pt; }
+    .shead h2 { font-size: 25pt; }
+    .thead { flex-wrap: wrap; gap: 10px; }
+    .rankbox { width: auto; }
+    .rk { font-size: 46pt; letter-spacing: -3px; }
+    .tid { flex: 1 1 60%; }
+    .tid h2 { font-size: 23pt; }
+    .trend { flex: 1 1 100%; text-align: left; padding-top: 0; }
+    .tbody { flex-direction: column; gap: 22px; }
+    .rail { width: 100%; }
+    .story h3 { font-size: 21pt; }
+    .story p { text-align: left; }
+    .notes, .flash, .awards { flex-direction: column; gap: 16px; }
+    .aw { width: 100%; }
+    table.std { font-size: 9pt; }
+    table.std th:nth-child(n+5), table.std td:nth-child(n+5) { display: none; }
+  }
+}
+@media print {
+  .page { box-shadow: none; border-radius: 0; }
+}
+</style></head><body>
+
+<section class="page cover">
+  <div class="masthead">
+    <h1>Midwest<br>Dynasty</h1>
+    <div class="sub">The official magazine of a ten-team, one-quarterback, half-PPR dynasty league</div>
+    <div class="issue"><span>Week 8</span><span>November 2026</span></div>
+  </div>
+  <div class="covermain">
+    <div class="eyebrow">Power Rankings</div>
+    <h2>All Ten<br>Teams,<br><em>Ranked</em></h2>
+    <div class="deck">Seven weeks in, one team is undefeated, the defending champion is 2-5, and the worst franchise in league history is suddenly in the playoff race. A scouting report on every roster in the Midwest Dynasty League.</div>
+  </div>
+  <div class="t3row"><div class="t3"><span>1</span><b>Linn Legends</b></div><div class="t3"><span>2</span><b>Sports Team</b></div><div class="t3"><span>3</span><b>Firecrotch</b></div></div>
+  <div class="coverfoot"><span>2016&ndash;2026</span><span>Data: Sleeper &amp; FantasyCalc</span></div>
+</section>
+
+<section class="page">
+  <div class="shead"><div class="kicker">The League at a Glance</div><h2>Where Everyone Stands</h2>
+    <p>Through week 8 of the 2026 season. Strength is the share of the league a team would beat in a
+       typical week, which removes schedule luck. Roster ratings are out of 100 against the best roster in
+       the league — one for this season, one for the years ahead.</p></div>
+  <table class="std">
+    <thead><tr><th>#</th><th>Team</th><th>Record</th><th>Pts/G</th><th>Strength</th>
+      <th>Roster now</th><th>Long term</th><th>Power rank</th></tr></thead>
+    <tbody><tr><td class="n">1</td><td class="tm">Linn Legends<i>@redkleb</i></td><td class="n">7-0</td><td class="n">143.4</td><td class="n">81%</td><td class="n">90.6</td><td class="n">100</td><td class="n">1</td></tr><tr><td class="n">2</td><td class="tm">Sports Team<i>@senant</i></td><td class="n">4-3</td><td class="n">140.0</td><td class="n">70%</td><td class="n">100</td><td class="n">96.5</td><td class="n">2</td></tr><tr><td class="n">3</td><td class="tm">#2 Mizzou Fan<i>@mwdlGOAT</i></td><td class="n">4-3</td><td class="n">123.2</td><td class="n">49%</td><td class="n">75.1</td><td class="n">69.1</td><td class="n">4</td></tr><tr><td class="n">4</td><td class="tm">Respect<i>@danvandyke</i></td><td class="n">4-3</td><td class="n">122.5</td><td class="n">49%</td><td class="n">67.5</td><td class="n">76</td><td class="n">5</td></tr><tr><td class="n">5</td><td class="tm">Firecrotch<i>@RedRocket0960</i></td><td class="n">3-4</td><td class="n">134.8</td><td class="n">65%</td><td class="n">86.1</td><td class="n">89.2</td><td class="n">3</td></tr><tr><td class="n">6</td><td class="tm">Bob<i>@bjaegers90</i></td><td class="n">3-4</td><td class="n">119.4</td><td class="n">43%</td><td class="n">59.3</td><td class="n">70.3</td><td class="n">7</td></tr><tr><td class="n">7</td><td class="tm">The NuTCRACkERZ<i>@klebbaja</i></td><td class="n">3-4</td><td class="n">108.8</td><td class="n">29%</td><td class="n">50.3</td><td class="n">70.6</td><td class="n">9</td></tr><tr><td class="n">8</td><td class="tm">Clark’s Cock Holster<i>@mvd1989</i></td><td class="n">3-4</td><td class="n">107.5</td><td class="n">30%</td><td class="n">42.8</td><td class="n">48.4</td><td class="n">10</td></tr><tr><td class="n">9</td><td class="tm">SuhMuhFuhDihBih<i>@PKlebba</i></td><td class="n">2-5</td><td class="n">119.4</td><td class="n">44%</td><td class="n">65.2</td><td class="n">61.2</td><td class="n">6</td></tr><tr><td class="n">10</td><td class="tm">Linn Wildcats<i>@TheMissouriFootballTeam</i></td><td class="n">2-5</td><td class="n">113.1</td><td class="n">40%</td><td class="n">42.8</td><td class="n">54.7</td><td class="n">8</td></tr></tbody>
+  </table>
+  <div class="notes"><div class="note"><h4>The gap is real</h4><p>The top three teams are scoring 134 points a game or better. The bottom three are under 114. There is almost nothing in between — this is a league splitting into contenders and rebuilds in real time.</p></div><div class="note"><h4>Records lie</h4><p>Three of the four teams sitting at .500 or better are being outscored by teams below them. Firecrotch is third in scoring and seventh in the standings.</p></div><div class="note"><h4>Youth moved</h4><p>The two youngest rosters in the league, Respect and Linn Legends, are a combined 11-3. The two oldest, SuhMuhFuhDihBih and Clark&#x27;s Cock Holster, are 5-9.</p></div></div>
+  <div class="flash"><div class="fl"><b>121.22</b><span>Largest margin in league history: Clark's Cock Holster 209.00, Linn Legends 87.78, week 11 of 2022</span></div><div class="fl"><b>7&ndash;0</b><span>Linn Legends' start, the league's first since 2021. Both previous 7&ndash;0 starts ended in a title</span></div><div class="fl"><b>0&ndash;14 &rarr; 4&ndash;3</b><span>Respect, one year on from the worst season any team has had in ten years</span></div><div class="fl"><b>20,607</b><span>The NuTCRACkERZ' draft capital, the most held by any team in the league today</span></div></div>
+</section>
+
+
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">1</span></div>
+    <div class="tid">
+      <div class="kicker">The best team nobody has beaten — or remembered</div>
+      <h2>Linn Legends</h2>
+      <div class="handle">@redkleb &nbsp;·&nbsp; 7-0 &nbsp;·&nbsp; 143.4 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #1</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Still Chasing the Ring</h3><p>Seven weeks, seven wins, 143.4 points a game. No team in the league is scoring more, and no roster projects better over the next three years. Only twice before has a team started a season 7-0 in this league — Linn Wildcats in 2018 and Clark&#x27;s Cock Holster in 2021 — and both of them went on to win the championship.</p><p>It is also the most haunted. Across ten seasons this is the winningest franchise in league history at 86-56, with eight playoff trips and three trips to the final. The trophy case is empty. Three times they have played for it all and three times they have come home with nothing, and their 7-8 playoff record is the single sharpest contradiction in the league: dominant for seventeen weeks, ordinary for three.</p><p>The build is a backfield. Bijan Robinson, Jonathan Taylor, Kyren Williams and Javonte Williams give them the top running back room in the league by a wide margin, and they own the second-most draft capital on top of it. The weak spots are real — sixth at quarterback, eighth at tight end — but they are the kind of holes a team with this much ammunition fixes at the deadline.</p>
+      <div class="verdict"><span>The verdict</span><p>If the ring doesn&#x27;t come this year, it may be time to stop blaming variance.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">7-0</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">143.4</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">81%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">90.6 · #2</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">100 · #1</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>6</b></div><div class="pos"><span>RB</span><b>1</b></div><div class="pos"><span>WR</span><b>5</b></div><div class="pos"><span>TE</span><b>8</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Bijan Robinson</span><span class="pp">RB · 25</span></li><li><span class="pn">Jonathan Taylor</span><span class="pp">RB · 28</span></li><li><span class="pn">Malik Nabers</span><span class="pp">WR · 23</span></li><li><span class="pn">Kyren Williams</span><span class="pp">RB · 26</span></li><li><span class="pn">Parker Washington</span><span class="pp">WR · 25</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">86-56</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">0 · 3 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">7-8 in 8 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">+247</div><div class="ss">22 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">−136</div><div class="ss">33 graded · 13-13</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+276</div><div class="ss">234 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">80.3%</div><div class="ss">32.7 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>1 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">2</span></div>
+    <div class="tid">
+      <div class="kicker">Best roster in the league, middling record</div>
+      <h2>Sports Team</h2>
+      <div class="handle">@senant &nbsp;·&nbsp; 4-3 &nbsp;·&nbsp; 140.0 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #2</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Loaded, and Waiting</h3><p>On paper there is no better team. Sports Team holds the number one roster rating in the league for this season and the number one wide receiver room by a distance: Puka Nacua, CeeDee Lamb, Amon-Ra St. Brown and Drake London, with Josh Allen as the league&#x27;s top quarterback behind them. They are second in scoring at 140.0 a game.</p><p>They are 4-3. That is the story of this franchise in miniature — across Sleeper seasons they have finished 1.3 wins below what their scores earned, and they have lost two finals to go with their 2023 title. Good process, indifferent results.</p><p>The one number that should worry them is draft capital: dead last in the league. Every future pick that mattered has already been spent, which is the correct way to run a roster this good, but it means the margin for error is gone. They are the best pure trader in league history at plus-274 points, so if a move is there to be made, this is the manager who finds it.</p>
+      <div class="verdict"><span>The verdict</span><p>A championship roster with no safety net. Win now or the bill comes due.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">4-3</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">140.0</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">70%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">100 · #1</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">96.5 · #2</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26.3</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>1</b></div><div class="pos"><span>RB</span><b>7</b></div><div class="pos"><span>WR</span><b>1</b></div><div class="pos"><span>TE</span><b>5</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Puka Nacua</span><span class="pp">WR · 25</span></li><li><span class="pn">Amon-Ra St. Brown</span><span class="pp">WR · 27</span></li><li><span class="pn">Josh Allen</span><span class="pp">QB · 30</span></li><li><span class="pn">CeeDee Lamb</span><span class="pp">WR · 28</span></li><li><span class="pn">Drake London</span><span class="pp">WR · 25</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">74-68</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1 · 2 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">5-5 in 6 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−14</div><div class="ss">30 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+274</div><div class="ss">5 graded · 3-2</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+187</div><div class="ss">106 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">81.1%</div><div class="ss">29.9 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>2 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">3</span></div>
+    <div class="tid">
+      <div class="kicker">Third in scoring, seventh in the standings</div>
+      <h2>Firecrotch</h2>
+      <div class="handle">@RedRocket0960 &nbsp;·&nbsp; 3-4 &nbsp;·&nbsp; 134.8 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #3</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Robbed Weekly</h3><p>Firecrotch is scoring 134.8 points a game, third in the league, and sitting at 3-4. Their weekly all-play strength of .651 says they should be comfortably in the playoff picture. Instead they have run into the wrong opponent nearly every Sunday.</p><p>The roster is legitimately good and young enough to stay that way. Jahmyr Gibbs and Kenneth Walker form the second-best backfield in the league, Zay Flowers and Nico Collins are both the right side of 28, and the whole operation grades third both for this season and for the long term.</p><p>History says to take them seriously in January: their nine playoff wins are the most of any team in the league, built on the 2019 title and a steady habit of showing up in the postseason. History also says to never, under any circumstance, answer their trade calls. At minus-508 points, this is the worst negotiating record in the league, more than three times the next-largest deficit.</p>
+      <div class="verdict"><span>The verdict</span><p>The schedule is the only thing beating them. That tends to even out.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">3-4</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">134.8</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">65%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">86.1 · #3</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">89.2 · #3</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26.6</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>5</b></div><div class="pos"><span>RB</span><b>2</b></div><div class="pos"><span>WR</span><b>6</b></div><div class="pos"><span>TE</span><b>4</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Jahmyr Gibbs</span><span class="pp">RB · 25</span></li><li><span class="pn">Kenneth Walker</span><span class="pp">RB · 26</span></li><li><span class="pn">Zay Flowers</span><span class="pp">WR · 26</span></li><li><span class="pn">Nico Collins</span><span class="pp">WR · 28</span></li><li><span class="pn">Brock Purdy</span><span class="pp">QB · 27</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">75-67</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1 · 1 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">9-6 in 7 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">+57</div><div class="ss">27 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">−508</div><div class="ss">11 graded · 2-7</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+143</div><div class="ss">175 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">81.7%</div><div class="ss">26.9 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>3 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">4</span></div>
+    <div class="tid">
+      <div class="kicker">The luckiest manager in league history, again</div>
+      <h2>#2 Mizzou Fan</h2>
+      <div class="handle">@mwdlGOAT &nbsp;·&nbsp; 4-3 &nbsp;·&nbsp; 123.2 pts/game</div>
+    </div>
+    <div class="trend down"><span>Dynasty stock</span><b>Falling</b><i>long-term #7</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Riding the Wave</h3><p>Four and three, on 123.2 points a game — a scoring rate that ranks sixth. This is not new. Across Sleeper seasons #2 Mizzou Fan has won 6.9 more games than their scoring deserved, the largest gap in the league by a factor of six, and the 2024 title came in exactly that style.</p><p>There is real talent here. Ja&#x27;Marr Chase anchors a wide receiver group that ranks third, James Cook and Bucky Irving are a functional backfield, and the manager works harder than almost anyone — 333 waiver moves, second-most in the league.</p><p>The problem is the calendar. At 27.4 years, this is the third-oldest starting lineup in the league, the roster drops to seventh in the long-term ratings, and the draft capital sits ninth. The core that won in 2024 is still the core, and it is getting older without being replaced.</p>
+      <div class="verdict"><span>The verdict</span><p>The window is open and the hinges are rusting. Push now.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">4-3</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">123.2</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">49%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">75.1 · #4</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">69.1 · #7</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">27.4</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>8</b></div><div class="pos"><span>RB</span><b>4</b></div><div class="pos"><span>WR</span><b>3</b></div><div class="pos"><span>TE</span><b>3</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Ja&#x27;Marr Chase</span><span class="pp">WR · 27</span></li><li><span class="pn">James Cook</span><span class="pp">RB · 27</span></li><li><span class="pn">Bucky Irving</span><span class="pp">RB · 24</span></li><li><span class="pn">Garrett Wilson</span><span class="pp">WR · 26</span></li><li><span class="pn">George Pickens</span><span class="pp">WR · 26</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">83-59</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1 · 1 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">7-6 in 7 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">+10</div><div class="ss">35 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+131</div><div class="ss">17 graded · 6-5</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+105</div><div class="ss">333 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">82.1%</div><div class="ss">27.2 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>4 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">5</span></div>
+    <div class="tid">
+      <div class="kicker">From 0-14 to the playoff race</div>
+      <h2>Respect</h2>
+      <div class="handle">@danvandyke &nbsp;·&nbsp; 4-3 &nbsp;·&nbsp; 122.5 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #4</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>The Turnaround</h3><p>Last season Respect lost every single game. Fourteen losses, 99 points a week, the worst season any team has put up in ten years of this league. They are 4-3 and scoring 122.5. Nothing in this magazine has changed more.</p><p>The rebuild is the real thing, not a hot streak. This is the youngest starting lineup in the league at 25.9 years, built around Justin Jefferson and Joe Burrow with Jeremiyah Love, Tetairoa McMillan and Bhayshul Tuten coming behind them. The long-term rating has them fourth — no team below them in these rankings projects better.</p><p>The caution flag is the track record. Respect owns the worst all-time record in the league at 53-89 and the worst draft grade of any manager at minus-227 points, which is a difficult way to build through youth. The 2016 title is a long way back. But they have never had a core this young or this good.</p>
+      <div class="verdict"><span>The verdict</span><p>The worst franchise in league history is suddenly one of the most interesting.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">4-3</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">122.5</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">49%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">67.5 · #5</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">76 · #4</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">25.9</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>2</b></div><div class="pos"><span>RB</span><b>6</b></div><div class="pos"><span>WR</span><b>4</b></div><div class="pos"><span>TE</span><b>7</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Justin Jefferson</span><span class="pp">WR · 27</span></li><li><span class="pn">Jeremiyah Love</span><span class="pp">RB · 21</span></li><li><span class="pn">Tetairoa McMillan</span><span class="pp">WR · 24</span></li><li><span class="pn">Joe Burrow</span><span class="pp">QB · 30</span></li><li><span class="pn">Bhayshul Tuten</span><span class="pp">RB · 24</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">53-89</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">3-3 in 4 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−227</div><div class="ss">33 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">−47</div><div class="ss">5 graded · 3-2</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+3</div><div class="ss">34 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">80.2%</div><div class="ss">27.6 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>5 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">6</span></div>
+    <div class="tid">
+      <div class="kicker">The defending champion is 2-5</div>
+      <h2>SuhMuhFuhDihBih</h2>
+      <div class="handle">@PKlebba &nbsp;·&nbsp; 2-5 &nbsp;·&nbsp; 119.4 pts/game</div>
+    </div>
+    <div class="trend down"><span>Dynasty stock</span><b>Falling</b><i>long-term #8</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Title Hangover</h3><p>Twelve months ago SuhMuhFuhDihBih went 10-4 and won the championship. They are 2-5, scoring 119.4 a game, and the ratings have them sixth now and eighth going forward. The defense of the crown has gone about as badly as it could.</p><p>The causes are visible from space. This is the second-oldest starting lineup in the league at 28.4 years. Christian McCaffrey turns 31 and still leads a running back room that ranks third — the one genuine strength on the roster. The quarterback position ranks tenth, dead last, and the receiving corps is seventh.</p><p>Ashton Jeanty is the reason to stay patient. At 22.9 he is the youngest cornerstone on the roster and the player a retool would be built around. Whether this manager retools is another question: eight graded trades in seven years is among the quietest records in the league.</p>
+      <div class="verdict"><span>The verdict</span><p>A champion with an old roster and a young star. Something has to give.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">2-5</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">119.4</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">44%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">65.2 · #6</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">61.2 · #8</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">28.4</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>10</b></div><div class="pos"><span>RB</span><b>3</b></div><div class="pos"><span>WR</span><b>7</b></div><div class="pos"><span>TE</span><b>9</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Ashton Jeanty</span><span class="pp">RB · 23</span></li><li><span class="pn">Christian McCaffrey</span><span class="pp">RB · 30</span></li><li><span class="pn">Matthew Golden</span><span class="pp">WR · 23</span></li><li><span class="pn">Chase Brown</span><span class="pp">RB · 27</span></li><li><span class="pn">Chuba Hubbard</span><span class="pp">RB · 27</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">64-78</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1 · 1 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">4-4 in 5 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−33</div><div class="ss">32 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+2</div><div class="ss">8 graded · 3-4</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+214</div><div class="ss">118 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">82.0%</div><div class="ss">26.6 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>6 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">7</span></div>
+    <div class="tid">
+      <div class="kicker">Ten seasons, zero titles, zero playoff wins</div>
+      <h2>Bob</h2>
+      <div class="handle">@bjaegers90 &nbsp;·&nbsp; 3-4 &nbsp;·&nbsp; 119.4 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #6</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>The Quiet Build</h3><p>No franchise in this league has less to show for ten years than Bob. No championships, no finals, three playoff appearances and an 0-3 record once they get there. The all-time mark of 54-88 is second-worst in the league.</p><p>And yet something is happening. At 3-4 with 119.4 a game they are no longer the punchline, and the receiving corps — Jaxon Smith-Njigba, Chris Olave, Luther Burden and Carnell Tate — rates second in the league and is almost entirely under 27. The long-term rating has them sixth and climbing.</p><p>They are also, quietly, the best lineup setter in the league. Bob starts 84.3% of the points available on his roster, the highest mark of any manager, leaving just 20.8 points a week on the bench while the league average sits past 28. What he does not do is work the wire: 37 waiver moves in seven years, about a tenth of what the busiest manager runs.</p>
+      <div class="verdict"><span>The verdict</span><p>Perfect lineups, patient roster, no hardware. The first trophy has to start somewhere.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">3-4</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">119.4</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">43%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">59.3 · #7</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">70.3 · #6</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26.1</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>9</b></div><div class="pos"><span>RB</span><b>9</b></div><div class="pos"><span>WR</span><b>2</b></div><div class="pos"><span>TE</span><b>10</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Jaxon Smith-Njigba</span><span class="pp">WR · 25</span></li><li><span class="pn">Chris Olave</span><span class="pp">WR · 26</span></li><li><span class="pn">Luther Burden</span><span class="pp">WR · 23</span></li><li><span class="pn">Breece Hall</span><span class="pp">RB · 25</span></li><li><span class="pn">Carnell Tate</span><span class="pp">WR · 22</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">54-88</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">0</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">0-3 in 3 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−144</div><div class="ss">23 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">−153</div><div class="ss">7 graded · 2-3</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+110</div><div class="ss">37 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">84.3%</div><div class="ss">20.8 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>7 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">8</span></div>
+    <div class="tid">
+      <div class="kicker">Best at acquiring talent, worst at using it</div>
+      <h2>Linn Wildcats</h2>
+      <div class="handle">@TheMissouriFootballTeam &nbsp;·&nbsp; 2-5 &nbsp;·&nbsp; 113.1 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #9</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>The Paradox</h3><p>Linn Wildcats is the best drafter in the league at plus-288 points. The best waiver-wire operator at plus-307 net. The third-best trader at plus-160. By every measure of acquiring talent, no manager in the Midwest Dynasty League does it better.</p><p>They are 2-5, scoring 113.1 a game, and rated last for this season. Across Sleeper seasons the record is 45-58.</p><p>The explanation is a single statistic. Linn Wildcats starts 77.7% of the points available on their roster — the worst mark in the league — and leaves 33.6 points a week on the bench, roughly thirteen more per week than Bob. Over seven seasons that is more than 3,200 points watched from the sideline, enough to swing a dozen games. The talent arrives. It just does not always play.</p>
+      <div class="verdict"><span>The verdict</span><p>Two titles prove the method works. The lineup card is the whole problem.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">2-5</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">113.1</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">40%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">42.8 · #10</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">54.7 · #9</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26.4</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>7</b></div><div class="pos"><span>RB</span><b>8</b></div><div class="pos"><span>WR</span><b>9</b></div><div class="pos"><span>TE</span><b>2</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Brock Bowers</span><span class="pp">TE · 24</span></li><li><span class="pn">Emeka Egbuka</span><span class="pp">WR · 24</span></li><li><span class="pn">Jaylen Warren</span><span class="pp">RB · 28</span></li><li><span class="pn">Jordan Love</span><span class="pp">QB · 28</span></li><li><span class="pn">KC Concepcion</span><span class="pp">WR · 22</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">65-77</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">2 · 1 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">6-3 in 5 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">+288</div><div class="ss">24 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+160</div><div class="ss">26 graded · 12-10</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+307</div><div class="ss">362 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">77.7%</div><div class="ss">33.6 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>8 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">9</span></div>
+    <div class="tid">
+      <div class="kicker">Two championships, one full teardown</div>
+      <h2>The NuTCRACkERZ</h2>
+      <div class="handle">@klebbaja &nbsp;·&nbsp; 3-4 &nbsp;·&nbsp; 108.8 pts/game</div>
+    </div>
+    <div class="trend up"><span>Dynasty stock</span><b>Rising</b><i>long-term #5</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>Playing the Long Game</h3><p>At 108.8 points a game, The NuTCRACkERZ is the second-lowest-scoring team in the league, with a weekly strength of .286 that is the worst mark of any team this season. The running back room ranks tenth. This is a bad football team in 2026, and it is on purpose.</p><p>They hold the most draft capital in the league at 20,607 points of value, and the long-term rating has them fifth — eight spots above where they sit today. Trey McBride is the top tight end in the league, Caleb Williams is 24, Omarion Hampton is 23, and Jordyn Tyson is 22. The pieces being gathered are all arriving at the same time, two or three years from now.</p><p>They have done this before. Two championships, in 2017 and 2022, from a franchise that has never been the best regular-season team in the league. They are also 4-11 in career games decided by under five points, which is the kind of luck that cannot keep going forever.</p>
+      <div class="verdict"><span>The verdict</span><p>The worst team in the league right now, and one of the best bets for 2028.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">3-4</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">108.8</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">29%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">50.3 · #8</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">70.6 · #5</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">26.8</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>4</b></div><div class="pos"><span>RB</span><b>10</b></div><div class="pos"><span>WR</span><b>8</b></div><div class="pos"><span>TE</span><b>1</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Trey McBride</span><span class="pp">TE · 27</span></li><li><span class="pn">Caleb Williams</span><span class="pp">QB · 25</span></li><li><span class="pn">Tee Higgins</span><span class="pp">WR · 28</span></li><li><span class="pn">Omarion Hampton</span><span class="pp">RB · 24</span></li><li><span class="pn">Jordyn Tyson</span><span class="pp">WR · 22</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">73-69</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">2 · 1 finals lost</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">7-6 in 8 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−155</div><div class="ss">33 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+19</div><div class="ss">20 graded · 8-6</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+159</div><div class="ss">119 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">79.7%</div><div class="ss">30.8 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>9 of 10</span></div>
+</section>
+<section class="page team">
+  <div class="thead">
+    <div class="rankbox"><span class="rk">10</span></div>
+    <div class="tid">
+      <div class="kicker">The best roster-builder in league history, in free fall</div>
+      <h2>Clark’s Cock Holster</h2>
+      <div class="handle">@mvd1989 &nbsp;·&nbsp; 3-4 &nbsp;·&nbsp; 107.5 pts/game</div>
+    </div>
+    <div class="trend flat"><span>Dynasty stock</span><b>Holding</b><i>long-term #10</i></div>
+  </div>
+  <div class="tbody">
+    <div class="story"><h3>The Long Slide</h3><p>For most of a decade this was the most dangerous team in the Midwest Dynasty League. An all-time record of 83-59, 132.0 points a game across Sleeper seasons, and twenty weeks as the league&#x27;s highest scorer — more than anyone. In 2021 they went 12-2 and won it all.</p><p>The decline since has been relentless and unbroken. Weekly strength by season: .812, .683, .762, .627, .508, .500, and now .302. At 3-4 with 107.5 points a game they are the lowest-scoring team in the league, with the oldest starting lineup at 28.5 years, the worst receiving corps, and the worst long-term rating of any roster.</p><p>What is left is the skill that built it. This manager is the second-best negotiator in league history at plus-258 points across just twelve graded trades, with the fewest draft picks of anyone — a roster assembled almost entirely through deals rather than the draft. Drake Maye at 24 and Quinshon Judkins at 23 are something to build on, and the third-most draft capital gives them the means.</p>
+      <div class="verdict"><span>The verdict</span><p>Elite trader, ancient roster, 2-6 in the playoffs. Deal your way out — again.</p></div>
+    </div>
+    <aside class="rail">
+      <div class="railblock"><h4>2026 so far</h4>
+        <div class="stat"><div class="sl">Record</div><div class="sv">3-4</div></div>
+        <div class="stat"><div class="sl">Points per game</div><div class="sv">107.5</div></div>
+        <div class="stat"><div class="sl">Weekly strength</div><div class="sv">30%</div><div class="ss">share of league outscored</div></div>
+      </div>
+      <div class="railblock"><h4>Roster rating</h4>
+        <div class="stat"><div class="sl">This season</div><div class="sv">42.8 · #9</div></div>
+        <div class="stat"><div class="sl">Long term</div><div class="sv">48.4 · #10</div></div>
+        <div class="stat"><div class="sl">Starter age</div><div class="sv">28.5</div></div>
+        <div class="posrow"><div class="pos"><span>QB</span><b>3</b></div><div class="pos"><span>RB</span><b>5</b></div><div class="pos"><span>WR</span><b>10</b></div><div class="pos"><span>TE</span><b>6</b></div></div>
+        <div class="poslab">position rank, this season</div>
+      </div>
+      <div class="railblock"><h4>Core pieces</h4><ul class="players"><li><span class="pn">Drake Maye</span><span class="pp">QB · 24</span></li><li><span class="pn">Derrick Henry</span><span class="pp">RB · 33</span></li><li><span class="pn">Quinshon Judkins</span><span class="pp">RB · 23</span></li><li><span class="pn">Josh Jacobs</span><span class="pp">RB · 29</span></li><li><span class="pn">Jadarian Price</span><span class="pp">RB · 23</span></li></ul></div>
+      <div class="railblock"><h4>The ledger</h4><div class="stat"><div class="sl">All-time</div><div class="sv">83-59</div></div><div class="stat"><div class="sl">Titles</div><div class="sv">1</div></div><div class="stat"><div class="sl">Playoffs</div><div class="sv">2-6 in 7 trips</div></div><div class="stat"><div class="sl">Drafting</div><div class="sv">−30</div><div class="ss">21 picks</div></div><div class="stat"><div class="sl">Trading</div><div class="sv">+258</div><div class="ss">12 graded · 5-5</div></div><div class="stat"><div class="sl">Waiver wire</div><div class="sv">+62</div><div class="ss">139 adds</div></div><div class="stat"><div class="sl">Lineup setting</div><div class="sv">82.1%</div><div class="ss">29.1 pts/wk benched</div></div></div>
+    </aside>
+  </div>
+  <div class="foot"><span>Midwest Dynasty League · 2026 Power Rankings</span><span>10 of 10</span></div>
+</section>
+
+<section class="page">
+  <div class="shead"><div class="kicker">Hardware &amp; Honors</div><h2>Ten Years of Receipts</h2>
+    <p>Career marks across every season, 2016 through 2026. The pre-Sleeper years come from the
+       commissioner's records; everything from 2019 on comes from Sleeper.</p></div>
+  <div class="awards"><div class="aw"><div class="l">Best manager</div><div class="w">Linn Legends</div><div class="d">Outscores 67% of the league in a typical week, the highest mark of any manager, with the best all-time record at 86-56. Still has no championship.</div></div><div class="aw"><div class="l">Luckiest</div><div class="w">#2 Mizzou Fan</div><div class="d">Has won 6.9 more games than their scoring earned, six times the gap of anyone else — and turned it into the 2024 title.</div></div><div class="aw"><div class="l">Unluckiest</div><div class="w">Respect</div><div class="d">2.1 wins below what their scores deserved, including an 0-14 season in which the scoring said they should have won three.</div></div><div class="aw"><div class="l">Best drafter</div><div class="w">Linn Wildcats</div><div class="d">Plus-288 points against what their draft slots usually return, headlined by De&#x27;Von Achane at pick 14 in 2023.</div></div><div class="aw"><div class="l">Best negotiator</div><div class="w">Sports Team</div><div class="d">Plus-274 points across just five graded trades, the best rate of return in the league.</div></div><div class="aw"><div class="l">Worst negotiator</div><div class="w">Firecrotch</div><div class="d">Minus-508 points over eleven graded trades, winning only two of them. The largest deficit in league history.</div></div><div class="aw"><div class="l">Best lineup setter</div><div class="w">Bob</div><div class="d">Starts 84.3% of the points available on the roster, leaving 20.8 a week on the bench — the league&#x27;s most efficient manager.</div></div><div class="aw"><div class="l">Biggest blowout</div><div class="w">209.00 — 87.78</div><div class="d">Clark&#x27;s Cock Holster over Linn Legends, week 11 of 2022. A margin of 121.22, the only game in league history decided by more than 100.</div></div></div>
+  <div class="method">
+    <h4>How we ranked them</h4>
+    <p><b>Power rank</b> is the average of two numbers: the roster's rating for this season, and the share
+      of the league that team has outscored in a typical week of 2026. One measures the talent on hand,
+      the other measures what it has actually done. Neither is affected by who a team happened to play.</p>
+    <p><b>Roster ratings</b> build the best legal lineup from each roster using FantasyCalc trade values, add
+      credit for bench depth, and — for the long-term number — every draft pick owned over the next three
+      drafts. Quarterback values are adjusted upward for this league's six-point passing touchdowns.</p>
+    <p><b>Manager grades</b> for drafting, trading and the waiver wire are measured in points above a
+      replacement-level player at the same position, so a quarterback's raw scoring advantage does not
+      distort them. Drafting judges each pick on its player's first three seasons; trading judges each side
+      from the deal through the next season.</p>
+    <p class="colophon">Compiled November 02, 2026 from Sleeper league 1312979994133139456 and FantasyCalc dynasty
+      values. Live ratings at tpm08150.github.io/dynasty-rater</p>
+  </div>
+</section>
+</body></html>
